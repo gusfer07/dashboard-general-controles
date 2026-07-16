@@ -4,10 +4,10 @@ import type { ReactNode } from "react";
 import { ThemeToggle } from "./theme-toggle";
 
 const navItems = [
-  { to: "/", label: "Dashboard General", icon: LayoutDashboard, group: null },
-  { to: "/tributarias", label: "Obligaciones Tributarias", icon: Receipt, group: "Operaciones" },
-  { to: "/parafiscales", label: "Parafiscales", icon: Landmark, group: "Operaciones" },
-  { to: "/libros", label: "Libros Legales", icon: BookOpen, group: "Operaciones" },
+  { to: "/", label: "Dashboard General", icon: LayoutDashboard, group: null, disabled: false },
+  { to: "/tributarias", label: "Obligaciones Tributarias", icon: Receipt, group: "Operaciones", disabled: false },
+  { to: "/parafiscales", label: "Parafiscales", icon: Landmark, group: "Operaciones", disabled: true },
+  { to: "/libros", label: "Libros Legales", icon: BookOpen, group: "Operaciones", disabled: true },
 ] as const;
 
 export function AppShell({
@@ -42,6 +42,25 @@ export function AppShell({
             const prevGroup = i > 0 ? navItems[i - 1].group : null;
             const showGroup = item.group && item.group !== prevGroup;
             const Icon = item.icon;
+
+            if (item.disabled) {
+              return (
+                <div key={item.to} className="opacity-40 cursor-not-allowed select-none">
+                  {showGroup && (
+                    <div className="pt-4 pb-2 px-3">
+                      <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                        {item.group}
+                      </span>
+                    </div>
+                  )}
+                  <div className="flex items-center gap-3 px-3 py-2 rounded-md font-medium text-sm text-muted-foreground">
+                    <Icon className="size-4 opacity-70" />
+                    <span>{item.label}</span>
+                  </div>
+                </div>
+              );
+            }
+
             return (
               <div key={item.to}>
                 {showGroup && (
@@ -51,7 +70,7 @@ export function AppShell({
                     </span>
                   </div>
                 )}
-                  <Link
+                <Link
                   to={item.to}
                   className={
                     "flex items-center gap-3 px-3 py-2 rounded-md font-medium text-sm transition-colors " +

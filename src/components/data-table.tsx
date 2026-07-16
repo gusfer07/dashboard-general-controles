@@ -10,11 +10,9 @@ const estadoStyles: Record<string, { dot: string; text: string }> = {
 
 export function DataTable({
   rows,
-  hideMonto = false,
   totalClientes = 103,
 }: {
   rows: Row[];
-  hideMonto?: boolean;
   totalClientes?: number;
 }) {
   return (
@@ -26,7 +24,6 @@ export function DataTable({
             <th className="px-6 py-3 font-semibold">Concepto</th>
             <th className="px-6 py-3 font-semibold">Estado</th>
             <th className="px-6 py-3 font-semibold">Vencimiento</th>
-            {!hideMonto && <th className="px-6 py-3 font-semibold text-right">Monto (VED)</th>}
             <th className="px-6 py-3 font-semibold">Responsable</th>
           </tr>
         </thead>
@@ -58,18 +55,13 @@ export function DataTable({
                 </td>
                 <td className="px-6 py-4">
                   <p
-                    className={
+                     className={
                       "text-xs font-mono " + (vencidoText ? "text-danger font-bold" : "")
                     }
                   >
                     {r.vencimiento}
                   </p>
                 </td>
-                {!hideMonto && (
-                  <td className="px-6 py-4 text-right">
-                    <p className="text-xs font-mono font-medium">{r.monto}</p>
-                  </td>
-                )}
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-2">
                     <div className="size-6 rounded bg-secondary flex items-center justify-center text-[10px] font-bold">
@@ -130,17 +122,37 @@ export function SectionCard({
   );
 }
 
-export function TableToolbar({ chips }: { chips: string[] }) {
+export function TableToolbar({
+  chips,
+  activeChip,
+  onChipClick,
+}: {
+  chips: string[];
+  activeChip: string | null;
+  onChipClick: (chip: string | null) => void;
+}) {
   return (
     <div className="border-b border-border bg-surface px-6 py-3 flex items-center justify-between flex-wrap gap-2">
       <div className="flex flex-wrap gap-2">
-        <button className="text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded border border-primary bg-primary text-primary-foreground">
+        <button
+          onClick={() => onChipClick(null)}
+          className={`text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded border transition-all ${
+            activeChip === null
+              ? "border-primary bg-primary text-primary-foreground shadow-sm"
+              : "border-border bg-surface text-muted-foreground hover:text-foreground"
+          }`}
+        >
           Todos
         </button>
         {chips.map((c) => (
           <button
             key={c}
-            className="text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded border border-border bg-surface text-muted-foreground hover:text-foreground transition-colors"
+            onClick={() => onChipClick(c)}
+            className={`text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded border transition-all ${
+              activeChip === c
+                ? "border-primary bg-primary text-primary-foreground shadow-sm"
+                : "border-border bg-surface text-muted-foreground hover:text-foreground"
+            }`}
           >
             {c}
           </button>

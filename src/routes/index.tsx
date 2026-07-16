@@ -1,7 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { KpiCards } from "@/components/kpi-cards";
-import { DataTable, SectionCard } from "@/components/data-table";
+import { DataTable, SectionCard, TableToolbar } from "@/components/data-table";
+import { conceptosPorTab } from "@/lib/mock-data";
 import {
   useDashboardData,
   clientsQueryOptions,
@@ -32,11 +34,18 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   const { tributarias, parafiscales, libros, kpis, allRows, clientsCount } = useDashboardData();
+  const [showFilters, setShowFilters] = useState(false);
+  const [activeFilter, setActiveFilter] = useState<string | null>(null);
 
   // Get active alerts (Vencido or Pendiente), sorted or filtered
-  const alertas = allRows
-    .filter((r) => r.estado === "Vencido" || r.estado === "Pendiente")
-    .slice(0, 10); // Show up to 10 alerts
+  const baseAlertas = allRows
+    .filter((r) => r.estado === "Vencido" || r.estado === "Pendiente");
+
+  const filteredAlertas = activeFilter
+    ? baseAlertas.filter((r) => r.concepto === activeFilter)
+    : baseAlertas;
+
+  const alertas = filteredAlertas.slice(0, 10); // Show up to 10 alerts
 
   // Calculate dynamic stats for each card
   const tribPendientes = tributarias.filter((r) => r.estado === "Vencido" || r.estado === "Pendiente" || r.estado === "En proceso").length;
@@ -105,12 +114,24 @@ function Index() {
       </div>
 
       <SectionCard title="Alertas" actions={
-        <>
-          <button className="px-3 py-1 bg-surface border border-border rounded text-[10px] font-bold uppercase tracking-wider">
-            Filtros
-          </button>
-        </>
+        <button
+          onClick={() => setShowFilters(!showFilters)}
+          className={`px-3 py-1 rounded text-[10px] font-bold uppercase tracking-wider border transition-all ${
+            showFilters
+              ? "bg-primary text-primary-foreground border-primary"
+              : "bg-surface border-border hover:bg-secondary"
+          }`}
+        >
+          Filtros
+        </button>
       }>
+        {showFilters && (
+          <TableToolbar
+            chips={[...conceptosPorTab.tributarias]}
+            activeChip={activeFilter}
+            onChipClick={setActiveFilter}
+          />
+        )}
         <DataTable rows={alertas} totalClientes={clientsCount} />
       </SectionCard>
     </AppShell>

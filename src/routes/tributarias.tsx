@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { KpiCards } from "@/components/kpi-cards";
 import { DataTable, SectionCard, TableToolbar } from "@/components/data-table";
@@ -17,7 +18,7 @@ import { conceptosPorTab } from "@/lib/mock-data";
 export const Route = createFileRoute("/tributarias")({
   head: () => ({
     meta: [
-      { title: "Obligaciones Tributarias — Cortés & Asoc." },
+      { title: "Obligaciones Tributarias — Dashboard General" },
       {
         name: "description",
         content:
@@ -41,6 +42,12 @@ export const Route = createFileRoute("/tributarias")({
 
 function TributariasPage() {
   const { tributarias, clientsCount } = useDashboardData();
+  const [showFilters, setShowFilters] = useState(false);
+  const [activeFilter, setActiveFilter] = useState<string | null>(null);
+
+  const filteredRows = activeFilter
+    ? tributarias.filter((r) => r.concepto === activeFilter)
+    : tributarias;
 
   // Calculate dynamic KPIs
   const total = tributarias.length;
@@ -66,18 +73,26 @@ function TributariasPage() {
       <SectionCard
         title="Detalle por cliente"
         actions={
-          <>
-            <button className="px-3 py-1 bg-surface border border-border rounded text-[10px] font-bold uppercase tracking-wider">
-              Filtros
-            </button>
-            <button className="px-3 py-1 bg-primary text-primary-foreground border border-primary rounded text-[10px] font-bold uppercase tracking-wider">
-              Exportar
-            </button>
-          </>
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className={`px-3 py-1 rounded text-[10px] font-bold uppercase tracking-wider border transition-all ${
+              showFilters
+                ? "bg-primary text-primary-foreground border-primary"
+                : "bg-surface border-border hover:bg-secondary"
+            }`}
+          >
+            Filtros
+          </button>
         }
       >
-        <TableToolbar chips={[...conceptosPorTab.tributarias]} />
-        <DataTable rows={tributarias} totalClientes={clientsCount} />
+        {showFilters && (
+          <TableToolbar
+            chips={[...conceptosPorTab.tributarias]}
+            activeChip={activeFilter}
+            onChipClick={setActiveFilter}
+          />
+        )}
+        <DataTable rows={filteredRows} totalClientes={clientsCount} />
       </SectionCard>
     </AppShell>
   );

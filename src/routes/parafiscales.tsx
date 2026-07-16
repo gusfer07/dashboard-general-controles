@@ -60,14 +60,9 @@ function ParafiscalesPage() {
       <SectionCard
         title="Detalle por cliente"
         actions={
-          <>
-            <button className="px-3 py-1 bg-surface border border-border rounded text-[10px] font-bold uppercase tracking-wider">
-              Filtros
-            </button>
-            <button className="px-3 py-1 bg-primary text-primary-foreground border border-primary rounded text-[10px] font-bold uppercase tracking-wider">
-              Exportar
-            </button>
-          </>
+          <button className="px-3 py-1 bg-surface border border-border rounded text-[10px] font-bold uppercase tracking-wider">
+            Filtros
+          </button>
         }
       >
         <TableToolbar chips={[...conceptosPorTab.parafiscales]} />
