@@ -1,0 +1,221 @@
+import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+
+export type Estado = "Al día" | "Pendiente" | "En proceso" | "Vencido" | "N/A";
+
+export type Responsable = { initials: string; name: string };
+export type Cliente = { name: string; rif: string; cualidad?: string };
+
+export type Row = {
+  id?: string;
+  cliente: Cliente;
+  concepto: string;
+  estado: Estado;
+  vencimiento: string;
+  monto: string;
+  responsable: Responsable;
+};
+
+const MONTHS_ES = ["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC"];
+
+function formatDueDate(dateStr: string | null | undefined): string {
+  if (!dateStr) return "N/A";
+  if (dateStr.includes("-")) {
+    const parts = dateStr.split("-");
+    if (parts.length === 3 && parts[0].length === 4) {
+      const year = parts[0];
+      const monthIdx = parseInt(parts[1], 10) - 1;
+      const day = parts[2];
+      if (monthIdx >= 0 && monthIdx < 12) {
+        return `${day}-${MONTHS_ES[monthIdx]}-${year}`;
+      }
+    }
+  }
+  return dateStr;
+}
+
+function getIvaStatus(
+  porcentaje: number | null | undefined,
+  fecha: string | null | undefined
+): Estado {
+  const p = porcentaje ?? 0;
+  if (p === 100) return "Al día";
+  
+  if (fecha) {
+    const targetDate = new Date(fecha + "T00:00:00");
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (targetDate < today) {
+      return "Vencido";
+    }
+  }
+  
+  if (p > 0) return "En proceso";
+  return "Pendiente";
+}
+
+// 1. Export query options for loaders
+export const clientsQueryOptions = queryOptions({
+  queryKey: ["clients"],
+  queryFn: async () => {
+    console.log("Supabase: Cargando 'clients'...");
+    const { data, error } = await supabase.from("clients").select("*");
+    if (error) {
+      console.error("Supabase Error (clients):", error);
+      throw error;
+    }
+    console.log(`Supabase: ${data?.length || 0} clientes cargados.`);
+    return data || [];
+  },
+  retry: false,
+});
+
+export const responsiblesQueryOptions = queryOptions({
+  queryKey: ["responsibles"],
+  queryFn: async () => {
+    console.log("Supabase: Cargando 'responsibles'...");
+    const { data, error } = await supabase.from("responsibles").select("*");
+    if (error) {
+      console.error("Supabase Error (responsibles):", error);
+      throw error;
+    }
+    console.log(`Supabase: ${data?.length || 0} responsables cargados.`);
+    return data || [];
+  },
+  retry: false,
+});
+
+export const ivaSpeQueryOptions = queryOptions({
+  queryKey: ["iva_spe"],
+  queryFn: async () => {
+    console.log("Supabase: Cargando 'iva_spe'...");
+    const { data, error } = await supabase.from("iva_spe").select("*");
+    if (error) {
+      console.error("Supabase Error (iva_spe):", error);
+      throw error;
+    }
+    console.log(`Supabase: ${data?.length || 0} registros de IVA SPE cargados.`);
+    return data || [];
+  },
+  retry: false,
+});
+
+export const ivaSpoQueryOptions = queryOptions({
+  queryKey: ["iva_spo"],
+  queryFn: async () => {
+    console.log("Supabase: Cargando 'iva_spo'...");
+    const { data, error } = await supabase.from("iva_spo").select("*");
+    if (error) {
+      console.error("Supabase Error (iva_spo):", error);
+      throw error;
+    }
+    console.log(`Supabase: ${data?.length || 0} registros de IVA SPO cargados.`);
+    return data || [];
+  },
+  retry: false,
+});
+
+export function useDashboardData() {
+  const clientsQuery = useSuspenseQuery(clientsQueryOptions);
+  const responsiblesQuery = useSuspenseQuery(responsiblesQueryOptions);
+  const ivaSpeQuery = useSuspenseQuery(ivaSpeQueryOptions);
+  const ivaSpoQuery = useSuspenseQuery(ivaSpoQueryOptions);
+
+  const clients = clientsQuery.data;
+  const responsibles = responsiblesQuery.data;
+  const ivaSpeList = ivaSpeQuery.data;
+  const ivaSpoList = ivaSpoQuery.data;
+
+  const clientMap = new Map(clients.map((c) => [c.id, c]));
+  const respMap = new Map(responsibles.map((r) => [r.id, r]));
+
+  const defaultResp: Responsable = { initials: "N/A", name: "Sin Asignar" };
+
+  // 1. Process Tributarias (Only IVA SPE and IVA SPO)
+  const tributariasRows: Row[] = [];
+
+  // Add iva_spe
+  ivaSpeList.forEach((item) => {
+    const client = clientMap.get(item.client_id!);
+    const resp = item.responsable_id ? respMap.get(item.responsable_id) : null;
+    tributariasRows.push({
+      id: `spe-${item.id}`,
+      cliente: client ? { name: client.name, rif: client.rif, cualidad: client.cualidad } : { name: "Cliente Desconocido", rif: "" },
+      concepto: "IVA SPE",
+      estado: getIvaStatus(item.porcentaje_completado, item.fecha),
+      vencimiento: formatDueDate(item.fecha),
+      monto: "—",
+      responsable: resp ? { initials: resp.initials, name: resp.name } : defaultResp,
+    });
+  });
+
+  // Add iva_spo
+  ivaSpoList.forEach((item) => {
+    const client = clientMap.get(item.client_id!);
+    const resp = item.responsable_id ? respMap.get(item.responsable_id) : null;
+    tributariasRows.push({
+      id: `spo-${item.id}`,
+      cliente: client ? { name: client.name, rif: client.rif, cualidad: client.cualidad } : { name: "Cliente Desconocido", rif: "" },
+      concepto: "IVA SPO",
+      estado: getIvaStatus(item.porcentaje_completado, item.fecha),
+      vencimiento: formatDueDate(item.fecha),
+      monto: "—",
+      responsable: resp ? { initials: resp.initials, name: resp.name } : defaultResp,
+    });
+  });
+
+  // 2. Process Parafiscales (Empty as requested since they are not in DB)
+  const parafiscalesRows: Row[] = [];
+
+  // 3. Process Libros Legales (Empty as requested since they are not in DB)
+  const librosRows: Row[] = [];
+
+  // 4. Calculate KPIs
+  const allRows = [...tributariasRows, ...parafiscalesRows, ...librosRows];
+  const totalObligations = allRows.length;
+  
+  const alDiaCount = allRows.filter((r) => r.estado === "Al día").length;
+  const pendienteCount = allRows.filter((r) => r.estado === "Pendiente" || r.estado === "En proceso").length;
+  const vencidaCount = allRows.filter((r) => r.estado === "Vencido").length;
+
+  const alDiaPct = totalObligations > 0 ? Math.round((alDiaCount / totalObligations) * 100) : 0;
+  const pendientePct = totalObligations > 0 ? Math.round((pendienteCount / totalObligations) * 100) : 0;
+  const vencidaPct = totalObligations > 0 ? Math.round((vencidaCount / totalObligations) * 100) : 0;
+
+  const kpis = [
+    {
+      label: "Declaraciones al día",
+      value: String(alDiaCount).padStart(2, "0"),
+      hint: `${alDiaPct}% del total`,
+      hintTone: "success" as const,
+      progress: { value: alDiaPct, tone: "success" as const },
+    },
+    {
+      label: "Pendientes",
+      value: String(pendienteCount).padStart(2, "0"),
+      hint: `${pendientePct}% del total`,
+      hintTone: "warning" as const,
+      progress: { value: pendientePct, tone: "warning" as const },
+    },
+    {
+      label: "Vencidas",
+      value: String(vencidaCount).padStart(2, "0"),
+      hint: `${vencidaPct}% del total`,
+      hintTone: "danger" as const,
+      progress: { value: vencidaPct, tone: "danger" as const },
+    },
+    {
+      label: "Total Clientes",
+      value: String(clients.length),
+    },
+  ];
+
+  return {
+    tributarias: tributariasRows,
+    parafiscales: parafiscalesRows,
+    libros: librosRows,
+    kpis,
+    allRows,
+    clientsCount: clients.length,
+  };
+}
