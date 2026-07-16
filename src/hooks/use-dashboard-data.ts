@@ -115,16 +115,90 @@ export const ivaSpoQueryOptions = queryOptions({
   retry: false,
 });
 
+export const alcaldiaQueryOptions = queryOptions({
+  queryKey: ["alcaldia"],
+  queryFn: async () => {
+    console.log("Supabase: Cargando 'alcaldia'...");
+    const { data, error } = await supabase.from("alcaldia").select("*");
+    if (error) {
+      console.error("Supabase Error (alcaldia):", error);
+      throw error;
+    }
+    console.log(`Supabase: ${data?.length || 0} registros de alcaldia cargados.`);
+    return data || [];
+  },
+  retry: false,
+});
+
+export const dppQueryOptions = queryOptions({
+  queryKey: ["dpp"],
+  queryFn: async () => {
+    console.log("Supabase: Cargando 'dpp'...");
+    const { data, error } = await supabase.from("dpp").select("*");
+    if (error) {
+      console.error("Supabase Error (dpp):", error);
+      throw error;
+    }
+    console.log(`Supabase: ${data?.length || 0} registros de dpp cargados.`);
+    return data || [];
+  },
+  retry: false,
+});
+
+export const retislrQueryOptions = queryOptions({
+  queryKey: ["retislr"],
+  queryFn: async () => {
+    console.log("Supabase: Cargando 'retislr'...");
+    const { data, error } = await supabase.from("retislr").select("*");
+    if (error) {
+      console.error("Supabase Error (retislr):", error);
+      throw error;
+    }
+    console.log(`Supabase: ${data?.length || 0} registros de retislr cargados.`);
+    return data || [];
+  },
+  retry: false,
+});
+
+function getDppOrRetislrStatus(
+  declarado: boolean | null | undefined,
+  pagado: boolean | null | undefined,
+  fecha: string | null | undefined
+): Estado {
+  const dec = declarado ?? false;
+  const pag = pagado ?? false;
+  
+  if (dec && pag) return "Al día";
+  
+  if (fecha) {
+    const targetDate = new Date(fecha + "T00:00:00");
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (targetDate < today) {
+      return "Vencido";
+    }
+  }
+  
+  if (dec || pag) return "En proceso";
+  return "Pendiente";
+}
+
 export function useDashboardData() {
   const clientsQuery = useSuspenseQuery(clientsQueryOptions);
   const responsiblesQuery = useSuspenseQuery(responsiblesQueryOptions);
   const ivaSpeQuery = useSuspenseQuery(ivaSpeQueryOptions);
   const ivaSpoQuery = useSuspenseQuery(ivaSpoQueryOptions);
+  const alcaldiaQuery = useSuspenseQuery(alcaldiaQueryOptions);
+  const dppQuery = useSuspenseQuery(dppQueryOptions);
+  const retislrQuery = useSuspenseQuery(retislrQueryOptions);
 
   const clients = clientsQuery.data;
   const responsibles = responsiblesQuery.data;
   const ivaSpeList = ivaSpeQuery.data;
   const ivaSpoList = ivaSpoQuery.data;
+  const alcaldiaList = alcaldiaQuery.data;
+  const dppList = dppQuery.data;
+  const retislrList = retislrQuery.data;
 
   const clientMap = new Map(clients.map((c) => [c.id, c]));
   const respMap = new Map(responsibles.map((r) => [r.id, r]));
@@ -158,6 +232,51 @@ export function useDashboardData() {
       cliente: client ? { name: client.name, rif: client.rif, cualidad: client.cualidad } : { name: "Cliente Desconocido", rif: "" },
       concepto: "IVA SPO",
       estado: getIvaStatus(item.porcentaje_completado, item.fecha),
+      vencimiento: formatDueDate(item.fecha),
+      monto: "—",
+      responsable: resp ? { initials: resp.initials, name: resp.name } : defaultResp,
+    });
+  });
+
+  // Add alcaldia
+  alcaldiaList.forEach((item) => {
+    const client = clientMap.get(item.client_id!);
+    const resp = item.responsable_id ? respMap.get(item.responsable_id) : null;
+    tributariasRows.push({
+      id: `alcaldia-${item.id}`,
+      cliente: client ? { name: client.name, rif: client.rif, cualidad: client.cualidad } : { name: "Cliente Desconocido", rif: "" },
+      concepto: "Alcaldía",
+      estado: getIvaStatus(item.porcentaje_completado, item.fecha),
+      vencimiento: formatDueDate(item.fecha),
+      monto: "—",
+      responsable: resp ? { initials: resp.initials, name: resp.name } : defaultResp,
+    });
+  });
+
+  // Add dpp
+  dppList.forEach((item) => {
+    const client = clientMap.get(item.client_id!);
+    const resp = item.responsable_id ? respMap.get(item.responsable_id) : null;
+    tributariasRows.push({
+      id: `dpp-${item.id}`,
+      cliente: client ? { name: client.name, rif: client.rif, cualidad: client.cualidad } : { name: "Cliente Desconocido", rif: "" },
+      concepto: "DPP",
+      estado: getDppOrRetislrStatus(item.declarado, item.pagado, item.fecha),
+      vencimiento: formatDueDate(item.fecha),
+      monto: "—",
+      responsable: resp ? { initials: resp.initials, name: resp.name } : defaultResp,
+    });
+  });
+
+  // Add retislr
+  retislrList.forEach((item) => {
+    const client = clientMap.get(item.client_id!);
+    const resp = item.responsable_id ? respMap.get(item.responsable_id) : null;
+    tributariasRows.push({
+      id: `retislr-${item.id}`,
+      cliente: client ? { name: client.name, rif: client.rif, cualidad: client.cualidad } : { name: "Cliente Desconocido", rif: "" },
+      concepto: "Retenciones ISLR",
+      estado: getDppOrRetislrStatus(item.declarado, item.pagado, item.fecha),
       vencimiento: formatDueDate(item.fecha),
       monto: "—",
       responsable: resp ? { initials: resp.initials, name: resp.name } : defaultResp,

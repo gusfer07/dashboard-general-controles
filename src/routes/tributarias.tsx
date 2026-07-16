@@ -8,6 +8,9 @@ import {
   responsiblesQueryOptions,
   ivaSpeQueryOptions,
   ivaSpoQueryOptions,
+  alcaldiaQueryOptions,
+  dppQueryOptions,
+  retislrQueryOptions,
 } from "@/hooks/use-dashboard-data";
 import { conceptosPorTab } from "@/lib/mock-data";
 
@@ -28,6 +31,9 @@ export const Route = createFileRoute("/tributarias")({
       queryClient.ensureQueryData(responsiblesQueryOptions),
       queryClient.ensureQueryData(ivaSpeQueryOptions),
       queryClient.ensureQueryData(ivaSpoQueryOptions),
+      queryClient.ensureQueryData(alcaldiaQueryOptions),
+      queryClient.ensureQueryData(dppQueryOptions),
+      queryClient.ensureQueryData(retislrQueryOptions),
     ]);
   },
   component: TributariasPage,

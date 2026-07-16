@@ -8,6 +8,9 @@ import {
   responsiblesQueryOptions,
   ivaSpeQueryOptions,
   ivaSpoQueryOptions,
+  alcaldiaQueryOptions,
+  dppQueryOptions,
+  retislrQueryOptions,
 } from "@/hooks/use-dashboard-data";
 import { Link } from "@tanstack/react-router";
 
@@ -19,6 +22,9 @@ export const Route = createFileRoute("/")({
       queryClient.ensureQueryData(responsiblesQueryOptions),
       queryClient.ensureQueryData(ivaSpeQueryOptions),
       queryClient.ensureQueryData(ivaSpoQueryOptions),
+      queryClient.ensureQueryData(alcaldiaQueryOptions),
+      queryClient.ensureQueryData(dppQueryOptions),
+      queryClient.ensureQueryData(retislrQueryOptions),
     ]);
   },
   component: Index,
