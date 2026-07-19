@@ -4,6 +4,8 @@ import viteReact from "@vitejs/plugin-react";
 import tsconfigPaths from "vite-tsconfig-paths";
 import tailwindcss from "@tailwindcss/vite";
 import { nitro } from "nitro/vite";
+import { readFile, writeFile } from "node:fs/promises";
+import { join } from "node:path";
 
 export default defineConfig(async ({ command, mode }) => {
   const loadedEnv = loadEnv(mode, process.cwd(), "VITE_");
@@ -65,7 +67,7 @@ export default defineConfig(async ({ command, mode }) => {
         nitro({
           preset: "vercel",
           inlineDynamicImports: false,
-          traceDeps: ["!tslib"],
+          noExternals: ["tslib"],
         }),
     ].filter(Boolean),
   };
