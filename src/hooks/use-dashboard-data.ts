@@ -14,6 +14,7 @@ export type Row = {
   vencimiento: string;
   monto: string;
   responsable: Responsable;
+  checksPendientes?: string[];
 };
 
 const MONTHS_ES = [
@@ -244,6 +245,25 @@ export function useDashboardData() {
   // 1. Process Tributarias
   const tributariasRows: Row[] = [];
 
+  function ivaPendingChecks(
+    ivaDeclarado: boolean | null | undefined,
+    informeEnviado: boolean | null | undefined,
+  ): string[] | undefined {
+    const pending: string[] = [];
+    if (!ivaDeclarado) pending.push("IVA declarado");
+    if (!informeEnviado) pending.push("Informe enviado");
+    return pending.length > 0 ? pending : undefined;
+  }
+
+  function booleanPendingChecks(
+    checks: (boolean | null | undefined)[],
+    labels: string[],
+  ): string[] | undefined {
+    const pending: string[] = [];
+    checks.forEach((c, i) => { if (!c) pending.push(labels[i]); });
+    return pending.length > 0 ? pending : undefined;
+  }
+
   ivaSpeList.forEach((item) => {
     if (item.iva_declarado == null && item.informe_enviado == null) return;
     const client = clientMap.get(item.client_id!);
@@ -258,6 +278,7 @@ export function useDashboardData() {
       vencimiento: formatDueDate(item.fecha),
       monto: "—",
       responsable: resp ? { initials: resp.initials, name: resp.name } : defaultResp,
+      checksPendientes: ivaPendingChecks(item.iva_declarado, item.informe_enviado),
     });
   });
 
@@ -275,6 +296,7 @@ export function useDashboardData() {
       vencimiento: formatDueDate(item.fecha),
       monto: "—",
       responsable: resp ? { initials: resp.initials, name: resp.name } : defaultResp,
+      checksPendientes: ivaPendingChecks(item.iva_declarado, item.informe_enviado),
     });
   });
 
@@ -291,6 +313,10 @@ export function useDashboardData() {
       vencimiento: formatDueDate(item.fecha),
       monto: "—",
       responsable: resp ? { initials: resp.initials, name: resp.name } : defaultResp,
+      checksPendientes: booleanPendingChecks(
+        [item.declarado, item.enviado, item.pagado, item.certificado],
+        ["Declarado", "Enviado", "Pagado", "Certificado"],
+      ),
     });
   });
 
@@ -307,6 +333,10 @@ export function useDashboardData() {
       vencimiento: formatDueDate(item.fecha),
       monto: "—",
       responsable: resp ? { initials: resp.initials, name: resp.name } : defaultResp,
+      checksPendientes: booleanPendingChecks(
+        [item.declarado, item.pagado],
+        ["Declarado", "Pagado"],
+      ),
     });
   });
 
@@ -323,6 +353,10 @@ export function useDashboardData() {
       vencimiento: formatDueDate(item.fecha),
       monto: "—",
       responsable: resp ? { initials: resp.initials, name: resp.name } : defaultResp,
+      checksPendientes: booleanPendingChecks(
+        [item.declarado, item.pagado],
+        ["Declarado", "Pagado"],
+      ),
     });
   });
 

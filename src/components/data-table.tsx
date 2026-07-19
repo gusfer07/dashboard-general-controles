@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { responsables, type Row } from "@/lib/mock-data";
 
 const MONTHS_ES: Record<string, number> = {
@@ -60,6 +60,7 @@ export function DataTable({
 }) {
   const sorted = useMemo(() => sortRows(rows), [rows]);
   const [page, setPage] = useState(1);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
   const totalPages = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE));
   const safePage = Math.min(page, totalPages);
   const start = (safePage - 1) * PAGE_SIZE;
@@ -105,45 +106,77 @@ export function DataTable({
                     name: String(r.responsable || ""),
                   };
             const vencidoText = r.estado === "Vencido";
+            const isExpanded = r.id && expandedId === r.id;
             return (
-              <tr key={i} className="group hover:bg-secondary/50 transition-colors">
-                <td className="px-6 py-4">
-                  <p className="font-bold text-sm">{r.cliente.name}</p>
-                  <p className="text-[10px] font-mono text-muted-foreground">
-                    RIF: {r.cliente.rif}
-                  </p>
-                </td>
-                <td className="px-6 py-4">
-                  <span className="text-xs font-medium px-2 py-0.5 bg-secondary rounded">
-                    {r.concepto}
-                  </span>
-                </td>
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-2">
-                    <span className={"size-1.5 rounded-full " + s.dot} />
-                    <span className={"text-xs font-bold uppercase tracking-wider " + s.text}>
-                      {r.estado}
+              <Fragment key={i}>
+                <tr
+                  onClick={() => setExpandedId(isExpanded ? null : r.id ?? null)}
+                  className="group hover:bg-secondary/50 transition-colors cursor-pointer"
+                >
+                  <td className="px-6 py-4">
+                    <p className="font-bold text-sm">{r.cliente.name}</p>
+                    <p className="text-[10px] font-mono text-muted-foreground">
+                      RIF: {r.cliente.rif}
+                    </p>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className="text-xs font-medium px-2 py-0.5 bg-secondary rounded">
+                      {r.concepto}
                     </span>
-                  </div>
-                </td>
-                <td className="px-6 py-4">
-                  <p
-                     className={
-                      "text-xs font-mono " + (vencidoText ? "text-danger font-bold" : "")
-                    }
-                  >
-                    {r.vencimiento}
-                  </p>
-                </td>
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-2">
-                    <div className="size-6 rounded bg-secondary flex items-center justify-center text-[10px] font-bold">
-                      {resp.initials}
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-2">
+                      <span className={"size-1.5 rounded-full " + s.dot} />
+                      <span className={"text-xs font-bold uppercase tracking-wider " + s.text}>
+                        {r.estado}
+                      </span>
                     </div>
-                    <span className="text-xs">{resp.name}</span>
-                  </div>
-                </td>
-              </tr>
+                  </td>
+                  <td className="px-6 py-4">
+                    <p
+                       className={
+                        "text-xs font-mono " + (vencidoText ? "text-danger font-bold" : "")
+                      }
+                    >
+                      {r.vencimiento}
+                    </p>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-2">
+                      <div className="size-6 rounded bg-secondary flex items-center justify-center text-[10px] font-bold">
+                        {resp.initials}
+                      </div>
+                      <span className="text-xs">{resp.name}</span>
+                    </div>
+                  </td>
+                </tr>
+                <tr className={`bg-secondary/30 transition-all duration-300 ${isExpanded ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+                  <td colSpan={5} className="px-6 py-0 overflow-hidden">
+                    <div className={`transition-all duration-300 ${isExpanded ? 'max-h-[100px] py-3' : 'max-h-0 py-0'}`}>
+                      {r.checksPendientes && r.checksPendientes.length > 0 ? (
+                        <div className="flex items-center gap-4 flex-wrap">
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                            Pendiente por realizar:
+                          </span>
+                          {r.checksPendientes.map((check) => (
+                            <span
+                              key={check}
+                              className="inline-flex items-center gap-1 text-xs text-danger"
+                            >
+                              <span className="size-1 rounded-full bg-danger" />
+                              {check}
+                            </span>
+                          ))}
+                        </div>
+                      ) : (
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-success">
+                          Todo completado
+                        </span>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              </Fragment>
             );
           })}
         </tbody>
