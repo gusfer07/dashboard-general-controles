@@ -5,7 +5,7 @@
 | Action           | Command                                                                |
 | ---------------- | ---------------------------------------------------------------------- |
 | Dev server       | `npm run dev` (port 8080, IPv6 `::`)                                   |
-| Build            | `npm run build` (produces `.output/` via Nitro for Cloudflare Workers) |
+| Build            | `npm run build` (produces `.vercel/output/` via Nitro for Vercel) |
 | Build (dev mode) | `npm run build:dev`                                                    |
 | Lint             | `npm run lint` (ESLint flat config)                                    |
 | Format           | `npm run format` (Prettier)                                            |
