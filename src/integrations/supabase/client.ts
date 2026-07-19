@@ -5,11 +5,11 @@ const ERR_PREFIX = "[Supabase]";
 
 function getClientEnv() {
   const url = import.meta.env.VITE_SUPABASE_URL;
-  const key = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+  const key = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || import.meta.env.VITE_SUPABASE_ANON_KEY;
 
   const missing: string[] = [];
   if (!url) missing.push("VITE_SUPABASE_URL");
-  if (!key) missing.push("VITE_SUPABASE_PUBLISHABLE_KEY");
+  if (!key) missing.push("VITE_SUPABASE_PUBLISHABLE_KEY / VITE_SUPABASE_ANON_KEY");
 
   if (missing.length > 0) {
     const msg = `${ERR_PREFIX} Variable(s) faltante(s): ${missing.join(", ")}. Las consultas devolverán datos vacíos.`;
