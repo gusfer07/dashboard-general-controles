@@ -36,19 +36,17 @@ function ClientePageContent() {
   const { allRows } = useDashboardData();
 
   const clientRows = allRows.filter((r) => r.cliente.rif === rif);
-  const clientName = clientRows.length > 0
-    ? clientRows[0].cliente.name
-    : "Cliente no encontrado";
+  const clientName = clientRows.length > 0 ? clientRows[0].cliente.name : "Cliente no encontrado";
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold">{clientName}</h2>
-        <p className="text-sm font-mono text-muted-foreground">{rif}</p>
+    <div className="space-y-4 lg:space-y-6">
+      <div className="space-y-1">
+        <h2 className="text-lg lg:text-2xl font-bold break-words">{clientName}</h2>
+        <p className="text-[10px] lg:text-sm font-mono text-muted-foreground">{rif}</p>
       </div>
 
       <SectionCard title="Alertas">
-        <DataTable rows={clientRows} />
+        <DataTable rows={clientRows} hideClient />
       </SectionCard>
     </div>
   );

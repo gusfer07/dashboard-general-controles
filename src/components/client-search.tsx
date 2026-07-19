@@ -15,9 +15,7 @@ export function ClientSearch() {
   const { data: clients } = useQuery(clientsQueryOptions);
 
   const filtered = query.trim()
-    ? (clients || []).filter((c) =>
-        c.name.toLowerCase().includes(query.toLowerCase()),
-      )
+    ? (clients || []).filter((c) => c.name.toLowerCase().includes(query.toLowerCase()))
     : [];
 
   const visible = filtered.slice(0, 8);
@@ -89,9 +87,7 @@ export function ClientSearch() {
               }`}
             >
               <p className="font-medium">{c.name}</p>
-              <p className="text-[10px] text-muted-foreground font-mono">
-                {c.rif}
-              </p>
+              <p className="text-[10px] text-muted-foreground font-mono">{c.rif}</p>
             </button>
           ))}
         </div>

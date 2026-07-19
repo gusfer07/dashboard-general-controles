@@ -22,7 +22,7 @@ export const Route = createFileRoute("/tributarias")({
       { title: "Obligaciones Tributarias" },
       {
         name: "description",
-        content: "Control de IVA SPE, IVA SPO, DPP, Retenciones ISLR y Alcaldía por cliente.",
+        content: "Control de IVA SPE, IVA SPO, DPP, RET ISLR y Alcaldía por cliente.",
       },
     ],
   }),
@@ -118,7 +118,7 @@ function TributariasPage() {
             />
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className={`px-3 py-1 rounded text-[10px] font-bold uppercase tracking-wider border transition-all ${
+              className={`px-2 lg:px-3 py-1 rounded text-[10px] font-bold uppercase tracking-wider border transition-all ${
                 showFilters
                   ? "bg-primary text-primary-foreground border-primary"
                   : "bg-surface border-border hover:bg-secondary"

@@ -21,7 +21,7 @@ const toneBar: Record<string, string> = {
 
 export function KpiCards({ kpis }: { kpis: Kpi[] }) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
       {kpis.map((k) => (
         <div key={k.label} className="bg-surface p-5 border border-border rounded-sm shadow-sm">
           <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">

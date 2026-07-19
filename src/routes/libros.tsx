@@ -100,11 +100,7 @@ function LibrosPage() {
         title="Detalle por cliente"
         actions={
           <>
-            <PeriodFilter
-              rows={libros}
-              activePeriod={activePeriod}
-              onChange={setActivePeriod}
-            />
+            <PeriodFilter rows={libros} activePeriod={activePeriod} onChange={setActivePeriod} />
             <button className="px-3 py-1 bg-surface border border-border rounded text-[10px] font-bold uppercase tracking-wider">
               Filtros
             </button>

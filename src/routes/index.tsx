@@ -40,8 +40,7 @@ function Index() {
   const [activePeriod, setActivePeriod] = useState<string | null>(null);
 
   // Get active alerts (Vencido or Pendiente), sorted or filtered
-  const baseAlertas = allRows
-    .filter((r) => r.estado === "Vencido" || r.estado === "Pendiente");
+  const baseAlertas = allRows.filter((r) => r.estado === "Vencido" || r.estado === "Pendiente");
 
   const conceptFiltered = activeFilter
     ? baseAlertas.filter((r) => r.concepto === activeFilter)
@@ -77,12 +76,12 @@ function Index() {
     <AppShell title="Dashboard General">
       <KpiCards kpis={kpis} />
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="hidden lg:grid grid-cols-1 lg:grid-cols-3 gap-6">
         {[
           {
             to: "/tributarias" as const,
             title: "Obligaciones Tributarias",
-            desc: "IVA SPE, IVA SPO, DPP, Retenciones ISLR, Alcaldía",
+            desc: "IVA SPE, IVA SPO, DPP, RET ISLR, Alcaldía",
             stat: String(tributarias.length),
             pill:
               tribVencidas > 0
@@ -183,25 +182,28 @@ function Index() {
         )}
       </div>
 
-      <SectionCard title="Alertas" actions={
-        <>
-          <PeriodFilter
-            rows={conceptFiltered}
-            activePeriod={activePeriod}
-            onChange={setActivePeriod}
-          />
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className={`px-3 py-1 rounded text-[10px] font-bold uppercase tracking-wider border transition-all ${
-              showFilters
-                ? "bg-primary text-primary-foreground border-primary"
-                : "bg-surface border-border hover:bg-secondary"
-            }`}
-          >
-            Filtros
-          </button>
-        </>
-      }>
+      <SectionCard
+        title="Alertas"
+        actions={
+          <>
+            <PeriodFilter
+              rows={conceptFiltered}
+              activePeriod={activePeriod}
+              onChange={setActivePeriod}
+            />
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className={`px-2 lg:px-3 py-1 rounded text-[10px] font-bold uppercase tracking-wider border transition-all ${
+                showFilters
+                  ? "bg-primary text-primary-foreground border-primary"
+                  : "bg-surface border-border hover:bg-secondary"
+              }`}
+            >
+              Filtros
+            </button>
+          </>
+        }
+      >
         {showFilters && (
           <TableToolbar
             chips={[...conceptosPorTab.tributarias]}

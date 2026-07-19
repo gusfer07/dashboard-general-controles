@@ -51,7 +51,7 @@ export const tributarias: Row[] = [
   },
   {
     cliente: clientes[2],
-    concepto: "Retenciones ISLR",
+    concepto: "RET ISLR",
     estado: "Vencido",
     vencimiento: "10-MAR-2024",
     monto: "45.120,00",
@@ -83,7 +83,7 @@ export const tributarias: Row[] = [
   },
   {
     cliente: clientes[6],
-    concepto: "Retenciones ISLR",
+    concepto: "RET ISLR",
     estado: "En proceso",
     vencimiento: "10-MAR-2024",
     monto: "12.410,25",
@@ -234,7 +234,7 @@ export const libros: Row[] = [
 ];
 
 export const conceptosPorTab = {
-  tributarias: ["IVA SPE", "IVA SPO", "DPP", "Retenciones ISLR", "Alcaldía"],
+  tributarias: ["IVA SPE", "IVA SPO", "DPP", "RET ISLR", "Alcaldía"],
   parafiscales: ["FAOV", "IVSS", "INCES", "FONACIT SPE", "FONACIT SPO", "RUPDAE"],
   libros: [
     "Libro de Actas",

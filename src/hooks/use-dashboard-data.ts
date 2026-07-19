@@ -200,13 +200,13 @@ export const retislrQueryOptions = queryOptions({
 function getDppOrRetislrStatus(
   declarado: boolean | null | undefined,
   pagado: boolean | null | undefined,
-  fecha: string | null | undefined
+  fecha: string | null | undefined,
 ): Estado {
   const dec = declarado ?? false;
   const pag = pagado ?? false;
-  
+
   if (dec && pag) return "Al día";
-  
+
   if (fecha) {
     const targetDate = new Date(fecha + "T00:00:00");
     const today = new Date();
@@ -215,7 +215,7 @@ function getDppOrRetislrStatus(
       return "Vencido";
     }
   }
-  
+
   if (dec || pag) return "En proceso";
   return "Pendiente";
 }
@@ -260,7 +260,9 @@ export function useDashboardData() {
     labels: string[],
   ): string[] | undefined {
     const pending: string[] = [];
-    checks.forEach((c, i) => { if (!c) pending.push(labels[i]); });
+    checks.forEach((c, i) => {
+      if (!c) pending.push(labels[i]);
+    });
     return pending.length > 0 ? pending : undefined;
   }
 
@@ -302,14 +304,25 @@ export function useDashboardData() {
 
   // Add alcaldia
   alcaldiaList.forEach((item) => {
-    if (item.declarado == null && item.enviado == null && item.pagado == null && item.certificado == null) return;
+    if (
+      item.declarado == null &&
+      item.enviado == null &&
+      item.pagado == null &&
+      item.certificado == null
+    )
+      return;
     const client = clientMap.get(item.client_id!);
     const resp = item.responsable_id ? respMap.get(item.responsable_id) : null;
     tributariasRows.push({
       id: `alcaldia-${item.id}`,
-      cliente: client ? { name: client.name, rif: client.rif, cualidad: client.cualidad } : { name: "Cliente Desconocido", rif: "" },
+      cliente: client
+        ? { name: client.name, rif: client.rif, cualidad: client.cualidad }
+        : { name: "Cliente Desconocido", rif: "" },
       concepto: "Alcaldía",
-      estado: getBooleanStatus([item.declarado, item.enviado, item.pagado, item.certificado], item.fecha),
+      estado: getBooleanStatus(
+        [item.declarado, item.enviado, item.pagado, item.certificado],
+        item.fecha,
+      ),
       vencimiento: formatDueDate(item.fecha),
       monto: "—",
       responsable: resp ? { initials: resp.initials, name: resp.name } : defaultResp,
@@ -327,7 +340,9 @@ export function useDashboardData() {
     const resp = item.responsable_id ? respMap.get(item.responsable_id) : null;
     tributariasRows.push({
       id: `dpp-${item.id}`,
-      cliente: client ? { name: client.name, rif: client.rif, cualidad: client.cualidad } : { name: "Cliente Desconocido", rif: "" },
+      cliente: client
+        ? { name: client.name, rif: client.rif, cualidad: client.cualidad }
+        : { name: "Cliente Desconocido", rif: "" },
       concepto: "DPP",
       estado: getDppOrRetislrStatus(item.declarado, item.pagado, item.fecha),
       vencimiento: formatDueDate(item.fecha),
@@ -347,8 +362,10 @@ export function useDashboardData() {
     const resp = item.responsable_id ? respMap.get(item.responsable_id) : null;
     tributariasRows.push({
       id: `retislr-${item.id}`,
-      cliente: client ? { name: client.name, rif: client.rif, cualidad: client.cualidad } : { name: "Cliente Desconocido", rif: "" },
-      concepto: "Retenciones ISLR",
+      cliente: client
+        ? { name: client.name, rif: client.rif, cualidad: client.cualidad }
+        : { name: "Cliente Desconocido", rif: "" },
+      concepto: "RET ISLR",
       estado: getDppOrRetislrStatus(item.declarado, item.pagado, item.fecha),
       vencimiento: formatDueDate(item.fecha),
       monto: "—",

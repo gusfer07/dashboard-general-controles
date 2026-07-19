@@ -2,8 +2,18 @@ import { useState, useRef, useEffect } from "react";
 import type { Row } from "@/hooks/use-dashboard-data";
 
 const MONTHS_ES: Record<string, number> = {
-  ENE: 0, FEB: 1, MAR: 2, ABR: 3, MAY: 4, JUN: 5,
-  JUL: 6, AGO: 7, SEP: 8, OCT: 9, NOV: 10, DIC: 11,
+  ENE: 0,
+  FEB: 1,
+  MAR: 2,
+  ABR: 3,
+  MAY: 4,
+  JUN: 5,
+  JUL: 6,
+  AGO: 7,
+  SEP: 8,
+  OCT: 9,
+  NOV: 10,
+  DIC: 11,
 };
 
 function extractPeriod(vencimiento: string): string | null {
@@ -59,17 +69,20 @@ export function PeriodFilter({
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen(!open)}
-        className="px-3 py-1.5 bg-surface border border-border rounded-md text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 hover:bg-secondary transition-colors"
+        className="px-2 lg:px-3 py-1.5 bg-surface border border-border rounded-md text-[10px] lg:text-xs font-bold uppercase tracking-wider flex items-center gap-1 hover:lg:gap-1.5 hover:bg-secondary transition-colors"
       >
-        {activePeriod ?? "Todos los períodos"}
+        {activePeriod ?? "Período"}
         <svg className="size-3 opacity-60" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
       </button>
       {open && (
-        <div className="absolute right-0 top-full mt-1 z-50 min-w-[160px] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-lg">
+        <div className="absolute right-0 lg:left-0 top-full mt-1 z-50 min-w-[140px] lg:min-w-[160px] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-lg">
           <button
-            onClick={() => { onChange(null); setOpen(false); }}
+            onClick={() => {
+              onChange(null);
+              setOpen(false);
+            }}
             className={`w-full text-left px-2 py-1.5 text-xs rounded hover:bg-secondary transition-colors ${
               activePeriod === null ? "bg-primary/10 font-bold" : ""
             }`}
@@ -79,7 +92,10 @@ export function PeriodFilter({
           {availablePeriods.map((p) => (
             <button
               key={p}
-              onClick={() => { onChange(p); setOpen(false); }}
+              onClick={() => {
+                onChange(p);
+                setOpen(false);
+              }}
               className={`w-full text-left px-2 py-1.5 text-xs rounded hover:bg-secondary transition-colors ${
                 activePeriod === p ? "bg-primary/10 font-bold" : ""
               }`}
