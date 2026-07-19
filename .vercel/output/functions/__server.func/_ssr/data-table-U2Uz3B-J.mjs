@@ -1,9 +1,9 @@
 import { r as __toESM } from "../_runtime.mjs";
 import { a as require_jsx_runtime, o as require_react, r as useQuery } from "../_libs/react+tanstack__react-query.mjs";
-import { n as clientsQueryOptions } from "./use-dashboard-data-pGMcfYq6.mjs";
+import { n as clientsQueryOptions } from "./use-dashboard-data-Cida7o6X.mjs";
 import { _ as useNavigate, g as Link, l as useRouterState } from "../_libs/@tanstack/react-router+[...].mjs";
 import { a as Moon, c as Landmark, i as Receipt, l as BookOpen, n as Sun, o as Menu, r as Search, s as LayoutDashboard, t as X } from "../_libs/lucide-react.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/data-table-Dfh8gz8U.js
+//#region node_modules/.nitro/vite/services/ssr/assets/data-table-U2Uz3B-J.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 var STORAGE_KEY = "theme";

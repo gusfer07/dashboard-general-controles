@@ -91,109 +91,64 @@ function getBooleanStatus(checks: boolean[], fecha: string | null | undefined): 
   return "Pendiente";
 }
 
+function queryFnWithFallback<T>(tableName: string) {
+  return async (): Promise<T[]> => {
+    console.log(`[Supabase] Cargando '${tableName}'...`);
+    try {
+      const { data, error } = await supabase.from(tableName).select("*");
+      if (error) {
+        console.error(`[Supabase] Error (${tableName}):`, error);
+        return [];
+      }
+      console.log(`[Supabase] ${data?.length || 0} registros de ${tableName} cargados.`);
+      return (data as T[]) || [];
+    } catch (err) {
+      console.error(`[Supabase] Excepción al cargar '${tableName}':`, err);
+      return [];
+    }
+  };
+}
+
 // 1. Export query options for loaders
 export const clientsQueryOptions = queryOptions({
   queryKey: ["clients"],
-  queryFn: async () => {
-    console.log("Supabase: Cargando 'clients'...");
-    const { data, error } = await supabase.from("clients").select("*");
-    if (error) {
-      console.error("Supabase Error (clients):", error);
-      throw error;
-    }
-    console.log(`Supabase: ${data?.length || 0} clientes cargados.`);
-    return data || [];
-  },
+  queryFn: queryFnWithFallback("clients"),
   retry: false,
 });
 
 export const responsiblesQueryOptions = queryOptions({
   queryKey: ["responsibles"],
-  queryFn: async () => {
-    console.log("Supabase: Cargando 'responsibles'...");
-    const { data, error } = await supabase.from("responsibles").select("*");
-    if (error) {
-      console.error("Supabase Error (responsibles):", error);
-      throw error;
-    }
-    console.log(`Supabase: ${data?.length || 0} responsables cargados.`);
-    return data || [];
-  },
+  queryFn: queryFnWithFallback("responsibles"),
   retry: false,
 });
 
 export const ivaSpeQueryOptions = queryOptions({
   queryKey: ["iva_spe"],
-  queryFn: async () => {
-    console.log("Supabase: Cargando 'iva_spe'...");
-    const { data, error } = await supabase.from("iva_spe").select("*");
-    if (error) {
-      console.error("Supabase Error (iva_spe):", error);
-      throw error;
-    }
-    console.log(`Supabase: ${data?.length || 0} registros de IVA SPE cargados.`);
-    return data || [];
-  },
+  queryFn: queryFnWithFallback("iva_spe"),
   retry: false,
 });
 
 export const ivaSpoQueryOptions = queryOptions({
   queryKey: ["iva_spo"],
-  queryFn: async () => {
-    console.log("Supabase: Cargando 'iva_spo'...");
-    const { data, error } = await supabase.from("iva_spo").select("*");
-    if (error) {
-      console.error("Supabase Error (iva_spo):", error);
-      throw error;
-    }
-    console.log(`Supabase: ${data?.length || 0} registros de IVA SPO cargados.`);
-    return data || [];
-  },
+  queryFn: queryFnWithFallback("iva_spo"),
   retry: false,
 });
 
 export const alcaldiaQueryOptions = queryOptions({
   queryKey: ["alcaldia"],
-  queryFn: async () => {
-    console.log("Supabase: Cargando 'alcaldia'...");
-    const { data, error } = await supabase.from("alcaldia").select("*");
-    if (error) {
-      console.error("Supabase Error (alcaldia):", error);
-      throw error;
-    }
-    console.log(`Supabase: ${data?.length || 0} registros de alcaldia cargados.`);
-    return data || [];
-  },
+  queryFn: queryFnWithFallback("alcaldia"),
   retry: false,
 });
 
 export const dppQueryOptions = queryOptions({
   queryKey: ["dpp"],
-  queryFn: async () => {
-    console.log("Supabase: Cargando 'dpp'...");
-    const { data, error } = await supabase.from("dpp").select("*");
-    if (error) {
-      console.error("Supabase Error (dpp):", error);
-      throw error;
-    }
-    console.log(`Supabase: ${data?.length || 0} registros de dpp cargados.`);
-    return data || [];
-  },
+  queryFn: queryFnWithFallback("dpp"),
   retry: false,
 });
 
 export const retislrQueryOptions = queryOptions({
   queryKey: ["retislr"],
-  queryFn: async () => {
-    console.log("Supabase: Cargando 'retislr'...");
-    const { data, error } = await supabase.from("retislr").select("*");
-    if (error) {
-      console.error("Supabase Error (retislr):", error);
-      throw error;
-    }
-    console.log(`Supabase: ${data?.length || 0} registros de retislr cargados.`);
-    return data || [];
-  },
+  queryFn: queryFnWithFallback("retislr"),
   retry: false,
 });
 

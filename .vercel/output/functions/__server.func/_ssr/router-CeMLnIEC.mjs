@@ -1,10 +1,10 @@
 import { r as __toESM } from "../_runtime.mjs";
 import { t as QueryClient } from "../_libs/tanstack__query-core.mjs";
 import { a as require_jsx_runtime, i as QueryClientProvider, o as require_react } from "../_libs/react+tanstack__react-query.mjs";
-import { a as ivaSpoQueryOptions, i as ivaSpeQueryOptions, n as clientsQueryOptions, o as responsiblesQueryOptions, r as dppQueryOptions, s as retislrQueryOptions, t as alcaldiaQueryOptions } from "./use-dashboard-data-pGMcfYq6.mjs";
+import { a as ivaSpoQueryOptions, i as ivaSpeQueryOptions, n as clientsQueryOptions, o as responsiblesQueryOptions, r as dppQueryOptions, s as retislrQueryOptions, t as alcaldiaQueryOptions } from "./use-dashboard-data-Cida7o6X.mjs";
 import { c as HeadContent, d as createRouter, f as Outlet, g as Link, h as createRootRouteWithContext, m as createFileRoute, p as lazyRouteComponent, s as Scripts, v as useRouter } from "../_libs/@tanstack/react-router+[...].mjs";
-import { t as Route$5 } from "./cliente._rif-Dy-fEEGZ.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/router-CwuuJC3Z.js
+import { t as Route$5 } from "./cliente._rif-BMU1gnrf.mjs";
+//#region node_modules/.nitro/vite/services/ssr/assets/router-CeMLnIEC.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 var styles_default = "/assets/styles-BwBy8Sks.css";
@@ -162,7 +162,7 @@ function RootComponent() {
 		children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Outlet, {})
 	});
 }
-var $$splitComponentImporter$3 = () => import("./tributarias-DcoAibpo.mjs");
+var $$splitComponentImporter$3 = () => import("./tributarias-BE8EaOvN.mjs");
 var Route$3 = createFileRoute("/tributarias")({
 	head: () => ({ meta: [{ title: "Obligaciones Tributarias" }, {
 		name: "description",
@@ -181,7 +181,7 @@ var Route$3 = createFileRoute("/tributarias")({
 	},
 	component: lazyRouteComponent($$splitComponentImporter$3, "component")
 });
-var $$splitComponentImporter$2 = () => import("./parafiscales-CiJ4Decd.mjs");
+var $$splitComponentImporter$2 = () => import("./parafiscales-CBH2eaVl.mjs");
 var Route$2 = createFileRoute("/parafiscales")({
 	head: () => ({ meta: [{ title: "Parafiscales" }, {
 		name: "description",
@@ -197,7 +197,7 @@ var Route$2 = createFileRoute("/parafiscales")({
 	},
 	component: lazyRouteComponent($$splitComponentImporter$2, "component")
 });
-var $$splitComponentImporter$1 = () => import("./libros-DjtY_xOJ.mjs");
+var $$splitComponentImporter$1 = () => import("./libros-BKxkNOAZ.mjs");
 var Route$1 = createFileRoute("/libros")({
 	head: () => ({ meta: [{ title: "Libros" }, {
 		name: "description",
@@ -213,7 +213,7 @@ var Route$1 = createFileRoute("/libros")({
 	},
 	component: lazyRouteComponent($$splitComponentImporter$1, "component")
 });
-var $$splitComponentImporter = () => import("./routes-DgZ8xUEI.mjs");
+var $$splitComponentImporter = () => import("./routes-UE4YCqeh.mjs");
 var Route = createFileRoute("/")({
 	loader: async ({ context: { queryClient } }) => {
 		await Promise.all([

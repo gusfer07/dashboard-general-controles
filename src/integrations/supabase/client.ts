@@ -1,16 +1,52 @@
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "./types";
 
-const SUPABASE_URL =
-  import.meta.env.VITE_SUPABASE_URL || "https://sfajjsgmlsdarnihnrjo.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY =
-  import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNmYWpqc2dtbHNkYXJuaWhucmpvIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MzYwNzYwNiwiZXhwIjoyMDk5MTgzNjA2fQ.PCDu53Ic-gQZ_W0NVHYnKO7qRmcDtdlZLCohZNsvji4";
+const ERR_PREFIX = "[Supabase]";
 
-export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
-  auth: {
-    storage: typeof window !== "undefined" ? window.localStorage : undefined,
-    persistSession: true,
-    autoRefreshToken: true,
-  },
-});
+function getClientEnv() {
+  const url = import.meta.env.VITE_SUPABASE_URL;
+  const key = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+
+  const missing: string[] = [];
+  if (!url) missing.push("VITE_SUPABASE_URL");
+  if (!key) missing.push("VITE_SUPABASE_PUBLISHABLE_KEY");
+
+  if (missing.length > 0) {
+    const msg = `${ERR_PREFIX} Variable(s) faltante(s): ${missing.join(", ")}. Las consultas devolverán datos vacíos.`;
+    if (typeof window !== "undefined") {
+      console.error(msg);
+    } else {
+      console.error(msg);
+    }
+    return { url: "", key: "" };
+  }
+
+  return { url, key };
+}
+
+const { url: SUPABASE_URL, key: SUPABASE_PUBLISHABLE_KEY } = getClientEnv();
+
+function createClientOrDummy() {
+  if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
+    return createClient<Database>("https://placeholder.supabase.co", "placeholder-key", {
+      auth: { persistSession: false },
+    });
+  }
+
+  try {
+    return createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+      auth: {
+        storage: typeof window !== "undefined" ? window.localStorage : undefined,
+        persistSession: true,
+        autoRefreshToken: true,
+      },
+    });
+  } catch (err) {
+    console.error(`${ERR_PREFIX} Error al inicializar createClient:`, err);
+    return createClient<Database>("https://placeholder.supabase.co", "placeholder-key", {
+      auth: { persistSession: false },
+    });
+  }
+}
+
+export const supabase = createClientOrDummy();

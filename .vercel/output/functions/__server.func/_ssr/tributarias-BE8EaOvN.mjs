@@ -1,9 +1,9 @@
 import { r as __toESM } from "../_runtime.mjs";
 import { a as require_jsx_runtime, o as require_react } from "../_libs/react+tanstack__react-query.mjs";
-import { c as useDashboardData } from "./use-dashboard-data-pGMcfYq6.mjs";
-import { a as conceptosPorTab, i as TableToolbar, n as DataTable, r as SectionCard, t as AppShell } from "./data-table-Dfh8gz8U.mjs";
+import { c as useDashboardData } from "./use-dashboard-data-Cida7o6X.mjs";
+import { a as conceptosPorTab, i as TableToolbar, n as DataTable, r as SectionCard, t as AppShell } from "./data-table-U2Uz3B-J.mjs";
 import { n as PeriodFilter, t as KpiCards } from "./period-filter-C3_mLgju.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/tributarias-DcoAibpo.js
+//#region node_modules/.nitro/vite/services/ssr/assets/tributarias-BE8EaOvN.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 function TributariasPage() {
