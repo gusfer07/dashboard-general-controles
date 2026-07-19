@@ -32,19 +32,6 @@ export default defineConfig(async ({ command, mode }) => {
         "@tanstack/query-core",
       ],
     },
-    ssr: {
-      noExternal: ['@supabase/supabase-js', 'tslib'],
-    },
-    optimizeDeps: {
-      include: [
-        "react",
-        "react-dom",
-        "react-dom/client",
-        "react/jsx-runtime",
-        "react/jsx-dev-runtime",
-      ],
-      ignoreOutdatedRequests: true,
-    },
     optimizeDeps: {
       include: [
         "react",
@@ -75,12 +62,11 @@ export default defineConfig(async ({ command, mode }) => {
         },
       }),
       isBuild &&
-  	nitro({
-    		preset: 'vercel',
-    		rollupConfig: {
-      			external: ['@supabase/supabase-js'],
-    		},    
-		inlineDynamicImports: false, 
-  	}),
-      };
+        nitro({
+          preset: "vercel",
+          inlineDynamicImports: false,
+          noExternals: ["tslib"],
+        }),
+    ].filter(Boolean),
+  };
 });
