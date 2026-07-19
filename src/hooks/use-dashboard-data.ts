@@ -1,10 +1,20 @@
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 
 function supabaseApiUrl(table: string): string {
-  return `https://sfajjsgmlsdarnihnrjo.supabase.co/rest/v1/${table}`;
+  const base =
+    (typeof process !== "undefined" && process.env.SUPABASE_URL) ||
+    (typeof import.meta !== "undefined" && import.meta.env.VITE_SUPABASE_URL) ||
+    "https://sfajjsgmlsdarnihnrjo.supabase.co";
+  return `${base}/rest/v1/${table}`;
 }
 
 function supabaseApiKey(): string {
+  if (typeof process !== "undefined" && process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    return process.env.SUPABASE_SERVICE_ROLE_KEY;
+  }
+  if (typeof import.meta !== "undefined" && import.meta.env.VITE_SUPABASE_ANON_KEY) {
+    return import.meta.env.VITE_SUPABASE_ANON_KEY;
+  }
   return "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNmYWpqc2dtbHNkYXJuaWhucmpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2MDc2MDYsImV4cCI6MjA5OTE4MzYwNn0.4u3PwgPmp85cV-AEqhJD2KDs0NpV6B5yKuXNehW6408";
 }
 
@@ -103,24 +113,26 @@ function queryFnWithFallback<T>(tableName: string) {
     console.log(`[Supabase] Cargando '${tableName}'...`);
     const url = supabaseApiUrl(tableName);
     const key = supabaseApiKey();
-    if (!url || !key) {
-      console.error(`[Supabase] URL o key faltante para '${tableName}'`);
+    if (!key) {
+      console.error(`[Supabase] Key faltante para '${tableName}'`);
       return [];
     }
     try {
-      const res = await fetch(url, {
-        headers: { apikey: key, Authorization: `Bearer ${key}` },
-        signal: AbortSignal.timeout(10_000),
+      const https = await import("node:https");
+      const data = await new Promise<Buffer>((resolve, reject) => {
+        const req = https.get(url, { headers: { apikey: key, Authorization: `Bearer ${key}` } }, (res) => {
+          const chunks: Buffer[] = [];
+          res.on("data", (c: Buffer) => chunks.push(c));
+          res.on("end", () => resolve(Buffer.concat(chunks)));
+        });
+        req.on("error", reject);
+        req.setTimeout(10_000, () => { req.destroy(); reject(new Error("Timeout")); });
       });
-      if (!res.ok) {
-        console.error(`[Supabase] HTTP ${res.status} para '${tableName}': ${await res.text()}`);
-        return [];
-      }
-      const data: T[] = await res.json();
-      console.log(`[Supabase] ${data?.length || 0} registros de ${tableName} cargados.`);
-      return data || [];
+      const parsed: T[] = JSON.parse(data.toString());
+      console.log(`[Supabase] ${parsed?.length || 0} registros de ${tableName} cargados.`);
+      return parsed || [];
     } catch (err) {
-      console.error(`[Supabase] Excepción al cargar '${tableName}':`, err);
+      console.error(`[Supabase] Error al cargar '${tableName}':`, err);
       return [];
     }
   };
