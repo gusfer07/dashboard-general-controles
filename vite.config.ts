@@ -75,10 +75,12 @@ export default defineConfig(async ({ command, mode }) => {
         },
       }),
       isBuild &&
-        nitro({
-          defaultPreset: "vercel",
-        }),
-      viteReact(),
-    ].filter(Boolean),
+  	nitro({
+    		preset: 'vercel',
+    		rollupConfig: {
+      	external: [],
+    	},
+    inlineDynamicImports: true, 
+  	}),
   };
 });
