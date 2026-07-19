@@ -65,7 +65,7 @@ export default defineConfig(async ({ command, mode }) => {
         nitro({
           preset: "vercel",
           inlineDynamicImports: false,
-          noExternals: ["tslib"],
+          traceDeps: ["!tslib"],
         }),
     ].filter(Boolean),
   };
