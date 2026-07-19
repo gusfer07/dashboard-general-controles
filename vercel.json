@@ -3,3 +3,10 @@
   "buildCommand": "npm run build",
   "framework": null
 }
+{
+  "functions": {
+    "api/**/*.js": {
+      "includeFiles": "node_modules/tslib/**"
+    }
+  }
+}
