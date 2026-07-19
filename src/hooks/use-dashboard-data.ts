@@ -48,11 +48,15 @@ function formatDueDate(dateStr: string | null | undefined): string {
 }
 
 function getIvaStatus(
-  porcentaje: number | null | undefined,
+  ivaDeclarado: boolean | null | undefined,
+  informeEnviado: boolean | null | undefined,
   fecha: string | null | undefined,
 ): Estado {
-  const p = porcentaje ?? 0;
-  if (p === 100) return "Al día";
+  const checks = [!!ivaDeclarado, !!informeEnviado];
+  const allTrue = checks.every(Boolean);
+  const anyTrue = checks.some(Boolean);
+
+  if (allTrue) return "Al día";
 
   if (fecha) {
     const targetDate = new Date(fecha + "T00:00:00");
@@ -63,7 +67,7 @@ function getIvaStatus(
     }
   }
 
-  if (p > 0) return "En proceso";
+  if (anyTrue) return "En proceso";
   return "Pendiente";
 }
 
@@ -241,6 +245,7 @@ export function useDashboardData() {
   const tributariasRows: Row[] = [];
 
   ivaSpeList.forEach((item) => {
+    if (item.iva_declarado == null && item.informe_enviado == null) return;
     const client = clientMap.get(item.client_id!);
     const resp = item.responsable_id ? respMap.get(item.responsable_id) : null;
     tributariasRows.push({
@@ -249,7 +254,7 @@ export function useDashboardData() {
         ? { name: client.name, rif: client.rif, cualidad: client.cualidad }
         : { name: "Cliente Desconocido", rif: "" },
       concepto: "IVA SPE",
-      estado: getIvaStatus(item.porcentaje_completado, item.fecha),
+      estado: getIvaStatus(item.iva_declarado, item.informe_enviado, item.fecha),
       vencimiento: formatDueDate(item.fecha),
       monto: "—",
       responsable: resp ? { initials: resp.initials, name: resp.name } : defaultResp,
@@ -257,6 +262,7 @@ export function useDashboardData() {
   });
 
   ivaSpoList.forEach((item) => {
+    if (item.iva_declarado == null && item.informe_enviado == null) return;
     const client = clientMap.get(item.client_id!);
     const resp = item.responsable_id ? respMap.get(item.responsable_id) : null;
     tributariasRows.push({
@@ -265,7 +271,7 @@ export function useDashboardData() {
         ? { name: client.name, rif: client.rif, cualidad: client.cualidad }
         : { name: "Cliente Desconocido", rif: "" },
       concepto: "IVA SPO",
-      estado: getIvaStatus(item.porcentaje_completado, item.fecha),
+      estado: getIvaStatus(item.iva_declarado, item.informe_enviado, item.fecha),
       vencimiento: formatDueDate(item.fecha),
       monto: "—",
       responsable: resp ? { initials: resp.initials, name: resp.name } : defaultResp,
@@ -274,13 +280,14 @@ export function useDashboardData() {
 
   // Add alcaldia
   alcaldiaList.forEach((item) => {
+    if (item.declarado == null && item.enviado == null && item.pagado == null && item.certificado == null) return;
     const client = clientMap.get(item.client_id!);
     const resp = item.responsable_id ? respMap.get(item.responsable_id) : null;
     tributariasRows.push({
       id: `alcaldia-${item.id}`,
       cliente: client ? { name: client.name, rif: client.rif, cualidad: client.cualidad } : { name: "Cliente Desconocido", rif: "" },
       concepto: "Alcaldía",
-      estado: getIvaStatus(item.porcentaje_completado, item.fecha),
+      estado: getBooleanStatus([item.declarado, item.enviado, item.pagado, item.certificado], item.fecha),
       vencimiento: formatDueDate(item.fecha),
       monto: "—",
       responsable: resp ? { initials: resp.initials, name: resp.name } : defaultResp,
@@ -289,6 +296,7 @@ export function useDashboardData() {
 
   // Add dpp
   dppList.forEach((item) => {
+    if (item.declarado == null && item.pagado == null) return;
     const client = clientMap.get(item.client_id!);
     const resp = item.responsable_id ? respMap.get(item.responsable_id) : null;
     tributariasRows.push({
@@ -304,6 +312,7 @@ export function useDashboardData() {
 
   // Add retislr
   retislrList.forEach((item) => {
+    if (item.declarado == null && item.pagado == null) return;
     const client = clientMap.get(item.client_id!);
     const resp = item.responsable_id ? respMap.get(item.responsable_id) : null;
     tributariasRows.push({

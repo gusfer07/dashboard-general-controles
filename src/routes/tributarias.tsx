@@ -3,6 +3,7 @@ import { useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { KpiCards } from "@/components/kpi-cards";
 import { DataTable, SectionCard, TableToolbar } from "@/components/data-table";
+import { PeriodFilter } from "@/components/period-filter";
 import {
   useDashboardData,
   clientsQueryOptions,
@@ -43,10 +44,22 @@ function TributariasPage() {
   const { tributarias, clientsCount } = useDashboardData();
   const [showFilters, setShowFilters] = useState(false);
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
+  const [activePeriod, setActivePeriod] = useState<string | null>(null);
 
-  const filteredRows = activeFilter
+  const conceptFiltered = activeFilter
     ? tributarias.filter((r) => r.concepto === activeFilter)
     : tributarias;
+
+  const filteredRows = activePeriod
+    ? conceptFiltered.filter((r) => {
+        if (r.vencimiento === "N/A") return false;
+        const parts = r.vencimiento.split("-");
+        if (parts.length === 3 && parts[0].length <= 2) {
+          return `${parts[1]} ${parts[2]}` === activePeriod;
+        }
+        return false;
+      })
+    : conceptFiltered;
 
   // Calculate dynamic KPIs
   const total = tributarias.length;
@@ -97,16 +110,23 @@ function TributariasPage() {
       <SectionCard
         title="Detalle por cliente"
         actions={
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className={`px-3 py-1 rounded text-[10px] font-bold uppercase tracking-wider border transition-all ${
-              showFilters
-                ? "bg-primary text-primary-foreground border-primary"
-                : "bg-surface border-border hover:bg-secondary"
-            }`}
-          >
-            Filtros
-          </button>
+          <>
+            <PeriodFilter
+              rows={conceptFiltered}
+              activePeriod={activePeriod}
+              onChange={setActivePeriod}
+            />
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className={`px-3 py-1 rounded text-[10px] font-bold uppercase tracking-wider border transition-all ${
+                showFilters
+                  ? "bg-primary text-primary-foreground border-primary"
+                  : "bg-surface border-border hover:bg-secondary"
+              }`}
+            >
+              Filtros
+            </button>
+          </>
         }
       >
         {showFilters && (

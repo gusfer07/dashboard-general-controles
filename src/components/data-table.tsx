@@ -1,4 +1,10 @@
+import { useEffect, useMemo, useState } from "react";
 import { responsables, type Row } from "@/lib/mock-data";
+
+const MONTHS_ES: Record<string, number> = {
+  ENE: 0, FEB: 1, MAR: 2, ABR: 3, MAY: 4, JUN: 5,
+  JUL: 6, AGO: 7, SEP: 8, OCT: 9, NOV: 10, DIC: 11,
+};
 
 const estadoStyles: Record<string, { dot: string; text: string }> = {
   "Al día": { dot: "bg-success", text: "text-success" },
@@ -8,6 +14,43 @@ const estadoStyles: Record<string, { dot: string; text: string }> = {
   "N/A": { dot: "bg-muted-foreground/40", text: "text-muted-foreground" },
 };
 
+const ESTADO_ORDER: Record<string, number> = {
+  Vencido: 0,
+  Pendiente: 1,
+  "En proceso": 2,
+  "Al día": 3,
+  "N/A": 4,
+};
+
+function estadoSortKey(estado: string): number {
+  return ESTADO_ORDER[estado] ?? 4;
+}
+
+function dateSortKey(vencimiento: string): number {
+  if (vencimiento === "N/A") return Infinity;
+  const parts = vencimiento.split("-");
+  if (parts.length === 3 && parts[0].length <= 2) {
+    const year = parseInt(parts[2], 10);
+    const month = MONTHS_ES[parts[1]] ?? 0;
+    const day = parseInt(parts[0], 10);
+    if (!isNaN(year) && !isNaN(day)) {
+      return year * 10000 + month * 100 + day;
+    }
+  }
+  return Infinity;
+}
+
+function sortRows(rows: Row[]): Row[] {
+  return [...rows].sort((a, b) => {
+    const ea = estadoSortKey(a.estado);
+    const eb = estadoSortKey(b.estado);
+    if (ea !== eb) return ea - eb;
+    return dateSortKey(a.vencimiento) - dateSortKey(b.vencimiento);
+  });
+}
+
+const PAGE_SIZE = 10;
+
 export function DataTable({
   rows,
   totalClientes = 103,
@@ -15,6 +58,27 @@ export function DataTable({
   rows: Row[];
   totalClientes?: number;
 }) {
+  const sorted = useMemo(() => sortRows(rows), [rows]);
+  const [page, setPage] = useState(1);
+  const totalPages = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE));
+  const safePage = Math.min(page, totalPages);
+  const start = (safePage - 1) * PAGE_SIZE;
+  const visible = sorted.slice(start, start + PAGE_SIZE);
+
+  useEffect(() => {
+    setPage(1);
+  }, [sorted.length]);
+
+  function goTo(p: number) {
+    setPage(Math.max(1, Math.min(p, totalPages)));
+  }
+
+  const windowStart = Math.max(1, Math.min(safePage, totalPages - 1));
+  const windowPages: number[] = [];
+  for (let i = windowStart; i <= Math.min(windowStart + 1, totalPages); i++) {
+    windowPages.push(i);
+  }
+
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-left">
@@ -28,7 +92,7 @@ export function DataTable({
           </tr>
         </thead>
         <tbody className="divide-y divide-border">
-          {rows.map((r, i) => {
+          {visible.map((r, i) => {
             const s = estadoStyles[r.estado] || {
               dot: "bg-muted-foreground/40",
               text: "text-muted-foreground",
@@ -87,22 +151,35 @@ export function DataTable({
 
       <div className="px-6 py-4 border-t border-border bg-secondary/40 flex items-center justify-between">
         <p className="text-xs text-muted-foreground">
-          Mostrando {rows.length} de {totalClientes} registros
+          Página {safePage} de {totalPages} — {visible.length} de {sorted.length} registros
         </p>
         <div className="flex gap-1">
           <button
+            onClick={() => goTo(safePage - 1)}
+            disabled={safePage <= 1}
             className="size-8 border border-border rounded flex items-center justify-center text-xs bg-surface hover:bg-secondary disabled:opacity-30"
-            disabled
           >
             ←
           </button>
-          <button className="size-8 border border-primary bg-primary text-primary-foreground rounded flex items-center justify-center text-xs">
-            1
-          </button>
-          <button className="size-8 border border-border rounded flex items-center justify-center text-xs bg-surface hover:bg-secondary">
-            2
-          </button>
-          <button className="size-8 border border-border rounded flex items-center justify-center text-xs bg-surface hover:bg-secondary">
+          {windowPages.map((p) => (
+            <button
+              key={p}
+              onClick={() => goTo(p)}
+              className={
+                "size-8 border rounded flex items-center justify-center text-xs " +
+                (p === safePage
+                  ? "border-primary bg-primary text-primary-foreground"
+                  : "border-border bg-surface hover:bg-secondary")
+              }
+            >
+              {p}
+            </button>
+          ))}
+          <button
+            onClick={() => goTo(safePage + 1)}
+            disabled={safePage >= totalPages}
+            className="size-8 border border-border rounded flex items-center justify-center text-xs bg-surface hover:bg-secondary disabled:opacity-30"
+          >
             →
           </button>
         </div>

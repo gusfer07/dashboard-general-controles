@@ -1,7 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { KpiCards } from "@/components/kpi-cards";
 import { DataTable, SectionCard, TableToolbar } from "@/components/data-table";
+import { PeriodFilter } from "@/components/period-filter";
 import {
   useDashboardData,
   clientsQueryOptions,
@@ -35,6 +37,18 @@ export const Route = createFileRoute("/libros")({
 
 function LibrosPage() {
   const { libros, clientsCount } = useDashboardData();
+  const [activePeriod, setActivePeriod] = useState<string | null>(null);
+
+  const filteredRows = activePeriod
+    ? libros.filter((r) => {
+        if (r.vencimiento === "N/A") return false;
+        const parts = r.vencimiento.split("-");
+        if (parts.length === 3 && parts[0].length <= 2) {
+          return `${parts[1]} ${parts[2]}` === activePeriod;
+        }
+        return false;
+      })
+    : libros;
 
   // Calculate dynamic KPIs
   const total = libros.length;
@@ -85,13 +99,20 @@ function LibrosPage() {
       <SectionCard
         title="Detalle por cliente"
         actions={
-          <button className="px-3 py-1 bg-surface border border-border rounded text-[10px] font-bold uppercase tracking-wider">
-            Filtros
-          </button>
+          <>
+            <PeriodFilter
+              rows={libros}
+              activePeriod={activePeriod}
+              onChange={setActivePeriod}
+            />
+            <button className="px-3 py-1 bg-surface border border-border rounded text-[10px] font-bold uppercase tracking-wider">
+              Filtros
+            </button>
+          </>
         }
       >
         <TableToolbar chips={[...conceptosPorTab.libros]} />
-        <DataTable rows={libros} totalClientes={clientsCount} />
+        <DataTable rows={filteredRows} totalClientes={clientsCount} />
       </SectionCard>
     </AppShell>
   );

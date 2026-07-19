@@ -12,11 +12,9 @@ const navItems = [
 
 export function AppShell({
   title,
-  period = "Marzo 2024",
   children,
 }: {
   title: string;
-  period?: string;
   children: ReactNode;
 }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -109,9 +107,6 @@ export function AppShell({
                 placeholder="Buscar cliente..."
                 className="bg-surface border border-border rounded-md pl-8 pr-4 py-1.5 text-sm w-64 focus:outline-none focus:ring-2 focus:ring-primary/20"
               />
-            </div>
-            <div className="px-3 py-1.5 bg-surface border border-border rounded-md text-xs font-bold uppercase tracking-wider">
-              {period}
             </div>
           </div>
         </header>
