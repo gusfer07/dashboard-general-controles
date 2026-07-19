@@ -18,11 +18,10 @@ import { conceptosPorTab } from "@/lib/mock-data";
 export const Route = createFileRoute("/tributarias")({
   head: () => ({
     meta: [
-      { title: "Obligaciones Tributarias — Dashboard General" },
+      { title: "Obligaciones Tributarias" },
       {
         name: "description",
-        content:
-          "Control de IVA SPE, IVA SPO, DPP, Retenciones ISLR y Alcaldía por cliente.",
+        content: "Control de IVA SPE, IVA SPO, DPP, Retenciones ISLR y Alcaldía por cliente.",
       },
     ],
   }),
@@ -52,7 +51,9 @@ function TributariasPage() {
   // Calculate dynamic KPIs
   const total = tributarias.length;
   const alDia = tributarias.filter((r) => r.estado === "Al día").length;
-  const enProceso = tributarias.filter((r) => r.estado === "En proceso" || r.estado === "Pendiente").length;
+  const enProceso = tributarias.filter(
+    (r) => r.estado === "En proceso" || r.estado === "Pendiente",
+  ).length;
   const vencidas = tributarias.filter((r) => r.estado === "Vencido").length;
 
   const alDiaPct = total > 0 ? Math.round((alDia / total) * 100) : 0;
@@ -60,10 +61,33 @@ function TributariasPage() {
   const vencidasPct = total > 0 ? Math.round((vencidas / total) * 100) : 0;
 
   const kpis = [
-    { label: "Presentadas", value: String(alDia).padStart(2, "0"), hint: `${alDiaPct}%`, hintTone: "success" as const, progress: { value: alDiaPct, tone: "success" as const } },
-    { label: "En proceso", value: String(enProceso).padStart(2, "0"), hint: `${enProcesoPct}%`, hintTone: "warning" as const, progress: { value: enProcesoPct, tone: "warning" as const } },
-    { label: "Vencidas", value: String(vencidas).padStart(2, "0"), hint: `${vencidasPct}%`, hintTone: "danger" as const, progress: { value: vencidasPct, tone: "danger" as const } },
-    { label: "Total", value: String(total).padStart(2, "0"), hint: "Declaraciones", hintTone: "muted" as const },
+    {
+      label: "Presentadas",
+      value: String(alDia).padStart(2, "0"),
+      hint: `${alDiaPct}%`,
+      hintTone: "success" as const,
+      progress: { value: alDiaPct, tone: "success" as const },
+    },
+    {
+      label: "En proceso",
+      value: String(enProceso).padStart(2, "0"),
+      hint: `${enProcesoPct}%`,
+      hintTone: "warning" as const,
+      progress: { value: enProcesoPct, tone: "warning" as const },
+    },
+    {
+      label: "Vencidas",
+      value: String(vencidas).padStart(2, "0"),
+      hint: `${vencidasPct}%`,
+      hintTone: "danger" as const,
+      progress: { value: vencidasPct, tone: "danger" as const },
+    },
+    {
+      label: "Total",
+      value: String(total).padStart(2, "0"),
+      hint: "Declaraciones",
+      hintTone: "muted" as const,
+    },
   ];
 
   return (

@@ -16,7 +16,20 @@ export type Row = {
   responsable: Responsable;
 };
 
-const MONTHS_ES = ["ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC"];
+const MONTHS_ES = [
+  "ENE",
+  "FEB",
+  "MAR",
+  "ABR",
+  "MAY",
+  "JUN",
+  "JUL",
+  "AGO",
+  "SEP",
+  "OCT",
+  "NOV",
+  "DIC",
+];
 
 function formatDueDate(dateStr: string | null | undefined): string {
   if (!dateStr) return "N/A";
@@ -36,11 +49,11 @@ function formatDueDate(dateStr: string | null | undefined): string {
 
 function getIvaStatus(
   porcentaje: number | null | undefined,
-  fecha: string | null | undefined
+  fecha: string | null | undefined,
 ): Estado {
   const p = porcentaje ?? 0;
   if (p === 100) return "Al día";
-  
+
   if (fecha) {
     const targetDate = new Date(fecha + "T00:00:00");
     const today = new Date();
@@ -49,8 +62,27 @@ function getIvaStatus(
       return "Vencido";
     }
   }
-  
+
   if (p > 0) return "En proceso";
+  return "Pendiente";
+}
+
+function getBooleanStatus(checks: boolean[], fecha: string | null | undefined): Estado {
+  const allTrue = checks.length > 0 && checks.every(Boolean);
+  const anyTrue = checks.some(Boolean);
+
+  if (allTrue) return "Al día";
+
+  if (fecha) {
+    const targetDate = new Date(fecha + "T00:00:00");
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (targetDate < today) {
+      return "Vencido";
+    }
+  }
+
+  if (anyTrue) return "En proceso";
   return "Pendiente";
 }
 
@@ -205,16 +237,17 @@ export function useDashboardData() {
 
   const defaultResp: Responsable = { initials: "N/A", name: "Sin Asignar" };
 
-  // 1. Process Tributarias (Only IVA SPE and IVA SPO)
+  // 1. Process Tributarias
   const tributariasRows: Row[] = [];
 
-  // Add iva_spe
   ivaSpeList.forEach((item) => {
     const client = clientMap.get(item.client_id!);
     const resp = item.responsable_id ? respMap.get(item.responsable_id) : null;
     tributariasRows.push({
       id: `spe-${item.id}`,
-      cliente: client ? { name: client.name, rif: client.rif, cualidad: client.cualidad } : { name: "Cliente Desconocido", rif: "" },
+      cliente: client
+        ? { name: client.name, rif: client.rif, cualidad: client.cualidad }
+        : { name: "Cliente Desconocido", rif: "" },
       concepto: "IVA SPE",
       estado: getIvaStatus(item.porcentaje_completado, item.fecha),
       vencimiento: formatDueDate(item.fecha),
@@ -223,13 +256,14 @@ export function useDashboardData() {
     });
   });
 
-  // Add iva_spo
   ivaSpoList.forEach((item) => {
     const client = clientMap.get(item.client_id!);
     const resp = item.responsable_id ? respMap.get(item.responsable_id) : null;
     tributariasRows.push({
       id: `spo-${item.id}`,
-      cliente: client ? { name: client.name, rif: client.rif, cualidad: client.cualidad } : { name: "Cliente Desconocido", rif: "" },
+      cliente: client
+        ? { name: client.name, rif: client.rif, cualidad: client.cualidad }
+        : { name: "Cliente Desconocido", rif: "" },
       concepto: "IVA SPO",
       estado: getIvaStatus(item.porcentaje_completado, item.fecha),
       vencimiento: formatDueDate(item.fecha),
@@ -292,13 +326,16 @@ export function useDashboardData() {
   // 4. Calculate KPIs
   const allRows = [...tributariasRows, ...parafiscalesRows, ...librosRows];
   const totalObligations = allRows.length;
-  
+
   const alDiaCount = allRows.filter((r) => r.estado === "Al día").length;
-  const pendienteCount = allRows.filter((r) => r.estado === "Pendiente" || r.estado === "En proceso").length;
+  const pendienteCount = allRows.filter(
+    (r) => r.estado === "Pendiente" || r.estado === "En proceso",
+  ).length;
   const vencidaCount = allRows.filter((r) => r.estado === "Vencido").length;
 
   const alDiaPct = totalObligations > 0 ? Math.round((alDiaCount / totalObligations) * 100) : 0;
-  const pendientePct = totalObligations > 0 ? Math.round((pendienteCount / totalObligations) * 100) : 0;
+  const pendientePct =
+    totalObligations > 0 ? Math.round((pendienteCount / totalObligations) * 100) : 0;
   const vencidaPct = totalObligations > 0 ? Math.round((vencidaCount / totalObligations) * 100) : 0;
 
   const kpis = [

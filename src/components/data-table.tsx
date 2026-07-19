@@ -29,16 +29,25 @@ export function DataTable({
         </thead>
         <tbody className="divide-y divide-border">
           {rows.map((r, i) => {
-            const s = estadoStyles[r.estado] || { dot: "bg-muted-foreground/40", text: "text-muted-foreground" };
-            const resp = typeof r.responsable === 'object' && r.responsable !== null
-              ? r.responsable
-              : (responsables[r.responsable as string] || { initials: String(r.responsable || ''), name: String(r.responsable || '') });
+            const s = estadoStyles[r.estado] || {
+              dot: "bg-muted-foreground/40",
+              text: "text-muted-foreground",
+            };
+            const resp =
+              typeof r.responsable === "object" && r.responsable !== null
+                ? r.responsable
+                : responsables[r.responsable as string] || {
+                    initials: String(r.responsable || ""),
+                    name: String(r.responsable || ""),
+                  };
             const vencidoText = r.estado === "Vencido";
             return (
               <tr key={i} className="group hover:bg-secondary/50 transition-colors">
                 <td className="px-6 py-4">
                   <p className="font-bold text-sm">{r.cliente.name}</p>
-                  <p className="text-[10px] font-mono text-muted-foreground">RIF: {r.cliente.rif}</p>
+                  <p className="text-[10px] font-mono text-muted-foreground">
+                    RIF: {r.cliente.rif}
+                  </p>
                 </td>
                 <td className="px-6 py-4">
                   <span className="text-xs font-medium px-2 py-0.5 bg-secondary rounded">

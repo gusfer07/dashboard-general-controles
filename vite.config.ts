@@ -16,8 +16,8 @@ export default defineConfig(async ({ command, mode }) => {
 
   return {
     define: envDefine,
-    css: { 
-      transformer: "lightningcss" 
+    css: {
+      transformer: "lightningcss",
     },
     resolve: {
       alias: {
@@ -29,7 +29,7 @@ export default defineConfig(async ({ command, mode }) => {
         "react/jsx-runtime",
         "react/jsx-dev-runtime",
         "@tanstack/react-query",
-        "@tanstack/query-core"
+        "@tanstack/query-core",
       ],
     },
     optimizeDeps: {
@@ -38,7 +38,7 @@ export default defineConfig(async ({ command, mode }) => {
         "react-dom",
         "react-dom/client",
         "react/jsx-runtime",
-        "react/jsx-dev-runtime"
+        "react/jsx-dev-runtime",
       ],
       ignoreOutdatedRequests: true,
     },
@@ -54,16 +54,17 @@ export default defineConfig(async ({ command, mode }) => {
           behavior: "error",
           client: {
             files: ["**/server/**"],
-            specifiers: ["server-only"]
-          }
+            specifiers: ["server-only"],
+          },
         },
         server: {
-          entry: "server"
-        }
+          entry: "server",
+        },
       }),
-      isBuild && nitro({
-        defaultPreset: "cloudflare-module"
-      }),
+      isBuild &&
+        nitro({
+          defaultPreset: "cloudflare-module",
+        }),
       viteReact(),
     ].filter(Boolean),
   };

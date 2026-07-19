@@ -29,7 +29,9 @@ export function AppShell({
             <div className="w-8 h-8 min-w-[2rem] min-h-[2rem] bg-primary rounded flex items-center justify-center text-primary-foreground font-bold text-sm">
               C
             </div>
-            <span className="font-extrabold tracking-tighter text-xl whitespace-nowrap">Carrasco & Asociados</span>
+            <span className="font-extrabold tracking-tighter text-xl whitespace-nowrap">
+              Carrasco & Asociados
+            </span>
           </div>
           <p className="text-[10px] text-muted-foreground font-mono mt-1 tracking-widest">
             GESTIÓN DE CONTROLES v1.0

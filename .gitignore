@@ -31,7 +31,9 @@ dist-ssr
 *.sln
 *.sw?
 
-# Environment variables (sensitive data)
 .env
 
-
+# Ignorar salidas locales de indexación y herramientas de IA
+graphify-out/
+.opencode/
+skills-lock.json

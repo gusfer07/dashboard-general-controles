@@ -84,14 +84,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Dashboard General" },
+      { title: "Dashboard General de Controles" },
       {
         name: "description",
         content:
           "Panel interno de control de declaraciones, parafiscales y libros legales de la cartera de clientes.",
       },
       { name: "author", content: "Cortés & Asoc." },
-      { property: "og:title", content: "Dashboard General" },
+      { property: "og:title", content: "Dashboard General de Controles" },
       {
         property: "og:description",
         content:
@@ -105,6 +105,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: appCss,
       },
+      { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
     ],
   }),
   shellComponent: RootShell,
@@ -115,7 +116,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="es">
+    <html lang="es" suppressHydrationWarning>
       <head>
         <HeadContent />
         <script

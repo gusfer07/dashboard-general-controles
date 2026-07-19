@@ -48,9 +48,15 @@ function Index() {
   const alertas = filteredAlertas.slice(0, 10); // Show up to 10 alerts
 
   // Calculate dynamic stats for each card
-  const tribPendientes = tributarias.filter((r) => r.estado === "Vencido" || r.estado === "Pendiente" || r.estado === "En proceso").length;
-  const paraPendientes = parafiscales.filter((r) => r.estado === "Vencido" || r.estado === "Pendiente" || r.estado === "En proceso").length;
-  const libroPendientes = libros.filter((r) => r.estado === "Vencido" || r.estado === "Pendiente" || r.estado === "En proceso").length;
+  const tribPendientes = tributarias.filter(
+    (r) => r.estado === "Vencido" || r.estado === "Pendiente" || r.estado === "En proceso",
+  ).length;
+  const paraPendientes = parafiscales.filter(
+    (r) => r.estado === "Vencido" || r.estado === "Pendiente" || r.estado === "En proceso",
+  ).length;
+  const libroPendientes = libros.filter(
+    (r) => r.estado === "Vencido" || r.estado === "Pendiente" || r.estado === "En proceso",
+  ).length;
 
   const tribVencidas = tributarias.filter((r) => r.estado === "Vencido").length;
   const paraVencidas = parafiscales.filter((r) => r.estado === "Vencido").length;
@@ -67,24 +73,54 @@ function Index() {
             title: "Obligaciones Tributarias",
             desc: "IVA SPE, IVA SPO, DPP, Retenciones ISLR, Alcaldía",
             stat: String(tributarias.length),
-            pill: tribVencidas > 0 ? `${tribVencidas} vencidas` : tribPendientes > 0 ? `${tribPendientes} pendientes` : "Al día",
-            tone: tribVencidas > 0 ? "text-danger" : tribPendientes > 0 ? "text-warning" : "text-success",
+            pill:
+              tribVencidas > 0
+                ? `${tribVencidas} vencidas`
+                : tribPendientes > 0
+                  ? `${tribPendientes} pendientes`
+                  : "Al día",
+            tone:
+              tribVencidas > 0
+                ? "text-danger"
+                : tribPendientes > 0
+                  ? "text-warning"
+                  : "text-success",
           },
           {
             to: "/parafiscales" as const,
             title: "Parafiscales",
             desc: "FAOV, IVSS, INCES, FONACIT SPE, FONACIT SPO, RUPDAE",
             stat: String(parafiscales.length),
-            pill: paraVencidas > 0 ? `${paraVencidas} vencidas` : paraPendientes > 0 ? `${paraPendientes} pendientes` : "Al día",
-            tone: paraVencidas > 0 ? "text-danger" : paraPendientes > 0 ? "text-warning" : "text-success",
+            pill:
+              paraVencidas > 0
+                ? `${paraVencidas} vencidas`
+                : paraPendientes > 0
+                  ? `${paraPendientes} pendientes`
+                  : "Al día",
+            tone:
+              paraVencidas > 0
+                ? "text-danger"
+                : paraPendientes > 0
+                  ? "text-warning"
+                  : "text-success",
           },
           {
             to: "/libros" as const,
             title: "Libros Legales",
             desc: "Actas, Accionistas, Inventario, Mayor, Diario",
             stat: String(libros.length),
-            pill: libroVencidas > 0 ? `${libroVencidas} vencidas` : libroPendientes > 0 ? `${libroPendientes} pendientes` : "Al día",
-            tone: libroVencidas > 0 ? "text-danger" : libroPendientes > 0 ? "text-warning" : "text-success",
+            pill:
+              libroVencidas > 0
+                ? `${libroVencidas} vencidas`
+                : libroPendientes > 0
+                  ? `${libroPendientes} pendientes`
+                  : "Al día",
+            tone:
+              libroVencidas > 0
+                ? "text-danger"
+                : libroPendientes > 0
+                  ? "text-warning"
+                  : "text-success",
           },
         ].map((m) => (
           <Link
@@ -94,8 +130,7 @@ function Index() {
           >
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest h-[14px]">
-                </p>
+                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest h-[14px]"></p>
                 <h3 className="mt-1 text-base font-bold tracking-tight">{m.title}</h3>
               </div>
               <span className="text-3xl font-bold tracking-tighter">{m.stat}</span>
