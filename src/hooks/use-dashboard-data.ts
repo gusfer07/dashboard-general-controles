@@ -4,8 +4,8 @@ function supabaseApiUrl(table: string): string {
   const base =
     (typeof process !== "undefined" && process.env.SUPABASE_URL) ||
     (typeof import.meta !== "undefined" && import.meta.env.VITE_SUPABASE_URL) ||
-    "https://sfajjsgmlsdarnihnrjo.supabase.co";
-  return `${base}/rest/v1/${table}`;
+    "";
+  return base ? `${base}/rest/v1/${table}` : "";
 }
 
 function supabaseApiKey(): string {
@@ -15,7 +15,7 @@ function supabaseApiKey(): string {
   if (typeof import.meta !== "undefined" && import.meta.env.VITE_SUPABASE_ANON_KEY) {
     return import.meta.env.VITE_SUPABASE_ANON_KEY;
   }
-  return "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNmYWpqc2dtbHNkYXJuaWhucmpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2MDc2MDYsImV4cCI6MjA5OTE4MzYwNn0.4u3PwgPmp85cV-AEqhJD2KDs0NpV6B5yKuXNehW6408";
+  return "";
 }
 
 export type Estado = "Al día" | "Pendiente" | "En proceso" | "Vencido" | "N/A";
@@ -108,6 +108,21 @@ function getBooleanStatus(checks: boolean[], fecha: string | null | undefined): 
   return "Pendiente";
 }
 
+async function supabaseFetch<T>(tableName: string, url: string, key: string): Promise<T[]> {
+  const headers = { apikey: key, Authorization: `Bearer ${key}` };
+  try {
+    const res = await fetch(url, { headers, signal: AbortSignal.timeout(15_000) });
+    if (!res.ok) {
+      console.error(`[Supabase] HTTP ${res.status} para '${tableName}': ${await res.text()}`);
+      return [];
+    }
+    return await res.json() as T[];
+  } catch (err) {
+    console.error(`[Supabase] Error al cargar '${tableName}':`, err);
+    return [];
+  }
+}
+
 function queryFnWithFallback<T>(tableName: string) {
   return async (): Promise<T[]> => {
     console.log(`[Supabase] Cargando '${tableName}'...`);
@@ -117,24 +132,7 @@ function queryFnWithFallback<T>(tableName: string) {
       console.error(`[Supabase] Key faltante para '${tableName}'`);
       return [];
     }
-    try {
-      const https = await import("node:https");
-      const data = await new Promise<Buffer>((resolve, reject) => {
-        const req = https.get(url, { headers: { apikey: key, Authorization: `Bearer ${key}` } }, (res) => {
-          const chunks: Buffer[] = [];
-          res.on("data", (c: Buffer) => chunks.push(c));
-          res.on("end", () => resolve(Buffer.concat(chunks)));
-        });
-        req.on("error", reject);
-        req.setTimeout(10_000, () => { req.destroy(); reject(new Error("Timeout")); });
-      });
-      const parsed: T[] = JSON.parse(data.toString());
-      console.log(`[Supabase] ${parsed?.length || 0} registros de ${tableName} cargados.`);
-      return parsed || [];
-    } catch (err) {
-      console.error(`[Supabase] Error al cargar '${tableName}':`, err);
-      return [];
-    }
+    return supabaseFetch<T>(tableName, url, key);
   };
 }
 
