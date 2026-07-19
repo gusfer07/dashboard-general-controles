@@ -1,5 +1,22 @@
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+
+function supabaseApiUrl(table: string): string {
+  const base = isServer()
+    ? (process.env.SUPABASE_URL || "")
+    : (import.meta.env.VITE_SUPABASE_URL || "");
+  return `${base}/rest/v1/${table}`;
+}
+
+function supabaseApiKey(): string {
+  if (isServer()) {
+    return process.env.SUPABASE_SERVICE_ROLE_KEY || "";
+  }
+  return import.meta.env.VITE_SUPABASE_ANON_KEY || "";
+}
+
+function isServer(): boolean {
+  return typeof window === "undefined";
+}
 
 export type Estado = "Al día" | "Pendiente" | "En proceso" | "Vencido" | "N/A";
 
@@ -94,14 +111,24 @@ function getBooleanStatus(checks: boolean[], fecha: string | null | undefined): 
 function queryFnWithFallback<T>(tableName: string) {
   return async (): Promise<T[]> => {
     console.log(`[Supabase] Cargando '${tableName}'...`);
+    const url = supabaseApiUrl(tableName);
+    const key = supabaseApiKey();
+    if (!url || !key) {
+      console.error(`[Supabase] URL o key faltante para '${tableName}'`);
+      return [];
+    }
     try {
-      const { data, error } = await supabase.from(tableName).select("*");
-      if (error) {
-        console.error(`[Supabase] Error (${tableName}):`, error);
+      const res = await fetch(url, {
+        headers: { apikey: key, Authorization: `Bearer ${key}` },
+        signal: AbortSignal.timeout(10_000),
+      });
+      if (!res.ok) {
+        console.error(`[Supabase] HTTP ${res.status} para '${tableName}': ${await res.text()}`);
         return [];
       }
+      const data: T[] = await res.json();
       console.log(`[Supabase] ${data?.length || 0} registros de ${tableName} cargados.`);
-      return (data as T[]) || [];
+      return data || [];
     } catch (err) {
       console.error(`[Supabase] Excepción al cargar '${tableName}':`, err);
       return [];
