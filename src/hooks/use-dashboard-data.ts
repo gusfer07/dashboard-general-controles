@@ -1,22 +1,5 @@
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-
-function supabaseApiUrl(table: string): string {
-  const base =
-    (typeof process !== "undefined" && process.env.SUPABASE_URL) ||
-    (typeof import.meta !== "undefined" && import.meta.env.VITE_SUPABASE_URL) ||
-    "";
-  return base ? `${base}/rest/v1/${table}` : "";
-}
-
-function supabaseApiKey(): string {
-  if (typeof process !== "undefined" && process.env.SUPABASE_SERVICE_ROLE_KEY) {
-    return process.env.SUPABASE_SERVICE_ROLE_KEY;
-  }
-  if (typeof import.meta !== "undefined" && import.meta.env.VITE_SUPABASE_ANON_KEY) {
-    return import.meta.env.VITE_SUPABASE_ANON_KEY;
-  }
-  return "";
-}
+import { supabase } from "@/integrations/supabase/client";
 
 export type Estado = "Al día" | "Pendiente" | "En proceso" | "Vencido" | "N/A";
 
@@ -108,31 +91,21 @@ function getBooleanStatus(checks: boolean[], fecha: string | null | undefined): 
   return "Pendiente";
 }
 
-async function supabaseFetch<T>(tableName: string, url: string, key: string): Promise<T[]> {
-  const headers = { apikey: key, Authorization: `Bearer ${key}` };
-  try {
-    const res = await fetch(url, { headers, signal: AbortSignal.timeout(15_000) });
-    if (!res.ok) {
-      console.error(`[Supabase] HTTP ${res.status} para '${tableName}': ${await res.text()}`);
-      return [];
-    }
-    return await res.json() as T[];
-  } catch (err) {
-    console.error(`[Supabase] Error al cargar '${tableName}':`, err);
-    return [];
-  }
-}
-
 function queryFnWithFallback<T>(tableName: string) {
   return async (): Promise<T[]> => {
     console.log(`[Supabase] Cargando '${tableName}'...`);
-    const url = supabaseApiUrl(tableName);
-    const key = supabaseApiKey();
-    if (!key) {
-      console.error(`[Supabase] Key faltante para '${tableName}'`);
+    try {
+      const { data, error } = await supabase.from(tableName).select("*");
+      if (error) {
+        console.error(`[Supabase] Error (${tableName}):`, error);
+        return [];
+      }
+      console.log(`[Supabase] ${data?.length || 0} registros de ${tableName} cargados.`);
+      return (data as T[]) || [];
+    } catch (err) {
+      console.error(`[Supabase] Excepción al cargar '${tableName}':`, err);
       return [];
     }
-    return supabaseFetch<T>(tableName, url, key);
   };
 }
 
