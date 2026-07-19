@@ -1,7 +1,8 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, Receipt, Landmark, BookOpen, Search } from "lucide-react";
+import { LayoutDashboard, Receipt, Landmark, BookOpen } from "lucide-react";
 import type { ReactNode } from "react";
 import { ThemeToggle } from "./theme-toggle";
+import { ClientSearch } from "./client-search";
 
 const navItems = [
   { to: "/", label: "Dashboard General", icon: LayoutDashboard, group: null, disabled: false },
@@ -100,14 +101,7 @@ export function AppShell({
         <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border px-8 py-4 flex items-center justify-between">
           <h1 className="text-lg font-bold tracking-tight">{title}</h1>
           <div className="flex items-center gap-4">
-            <div className="relative">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
-              <input
-                type="text"
-                placeholder="Buscar cliente..."
-                className="bg-surface border border-border rounded-md pl-8 pr-4 py-1.5 text-sm w-64 focus:outline-none focus:ring-2 focus:ring-primary/20"
-              />
-            </div>
+            <ClientSearch />
           </div>
         </header>
 

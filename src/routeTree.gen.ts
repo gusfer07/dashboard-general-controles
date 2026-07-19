@@ -13,6 +13,7 @@ import { Route as TributariasRouteImport } from './routes/tributarias'
 import { Route as ParafiscalesRouteImport } from './routes/parafiscales'
 import { Route as LibrosRouteImport } from './routes/libros'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ClienteRifRouteImport } from './routes/cliente.$rif'
 
 const TributariasRoute = TributariasRouteImport.update({
   id: '/tributarias',
@@ -34,18 +35,25 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ClienteRifRoute = ClienteRifRouteImport.update({
+  id: '/cliente/$rif',
+  path: '/cliente/$rif',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/libros': typeof LibrosRoute
   '/parafiscales': typeof ParafiscalesRoute
   '/tributarias': typeof TributariasRoute
+  '/cliente/$rif': typeof ClienteRifRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/libros': typeof LibrosRoute
   '/parafiscales': typeof ParafiscalesRoute
   '/tributarias': typeof TributariasRoute
+  '/cliente/$rif': typeof ClienteRifRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -53,13 +61,21 @@ export interface FileRoutesById {
   '/libros': typeof LibrosRoute
   '/parafiscales': typeof ParafiscalesRoute
   '/tributarias': typeof TributariasRoute
+  '/cliente/$rif': typeof ClienteRifRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/libros' | '/parafiscales' | '/tributarias'
+  fullPaths:
+    '/' | '/libros' | '/parafiscales' | '/tributarias' | '/cliente/$rif'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/libros' | '/parafiscales' | '/tributarias'
-  id: '__root__' | '/' | '/libros' | '/parafiscales' | '/tributarias'
+  to: '/' | '/libros' | '/parafiscales' | '/tributarias' | '/cliente/$rif'
+  id:
+    | '__root__'
+    | '/'
+    | '/libros'
+    | '/parafiscales'
+    | '/tributarias'
+    | '/cliente/$rif'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -67,6 +83,7 @@ export interface RootRouteChildren {
   LibrosRoute: typeof LibrosRoute
   ParafiscalesRoute: typeof ParafiscalesRoute
   TributariasRoute: typeof TributariasRoute
+  ClienteRifRoute: typeof ClienteRifRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -99,6 +116,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/cliente/$rif': {
+      id: '/cliente/$rif'
+      path: '/cliente/$rif'
+      fullPath: '/cliente/$rif'
+      preLoaderRoute: typeof ClienteRifRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -107,6 +131,7 @@ const rootRouteChildren: RootRouteChildren = {
   LibrosRoute: LibrosRoute,
   ParafiscalesRoute: ParafiscalesRoute,
   TributariasRoute: TributariasRoute,
+  ClienteRifRoute: ClienteRifRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
