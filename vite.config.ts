@@ -78,9 +78,9 @@ export default defineConfig(async ({ command, mode }) => {
   	nitro({
     		preset: 'vercel',
     		rollupConfig: {
-      	external: [],
-    	},
-    inlineDynamicImports: true, 
+      			external: ['@supabase/supabase-js'],
+    		},    
+		inlineDynamicImports: false, 
   	}),
-  };
+      };
 });
