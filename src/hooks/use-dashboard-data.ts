@@ -1,21 +1,11 @@
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 
 function supabaseApiUrl(table: string): string {
-  const base = isServer()
-    ? (process.env.SUPABASE_URL || "")
-    : (import.meta.env.VITE_SUPABASE_URL || "");
-  return `${base}/rest/v1/${table}`;
+  return `https://sfajjsgmlsdarnihnrjo.supabase.co/rest/v1/${table}`;
 }
 
 function supabaseApiKey(): string {
-  if (isServer()) {
-    return process.env.SUPABASE_SERVICE_ROLE_KEY || "";
-  }
-  return import.meta.env.VITE_SUPABASE_ANON_KEY || "";
-}
-
-function isServer(): boolean {
-  return typeof window === "undefined";
+  return "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNmYWpqc2dtbHNkYXJuaWhucmpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2MDc2MDYsImV4cCI6MjA5OTE4MzYwNn0.4u3PwgPmp85cV-AEqhJD2KDs0NpV6B5yKuXNehW6408";
 }
 
 export type Estado = "Al día" | "Pendiente" | "En proceso" | "Vencido" | "N/A";
