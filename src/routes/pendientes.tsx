@@ -82,6 +82,13 @@ function PendientesPage() {
               activePeriod={activePeriod}
               onChange={setActivePeriod}
             />
+            {activeFilter === "IVA SPE" && (
+              <QuincenaFilter
+                activeQuincena={activeQuincena}
+                onChange={setActiveQuincena}
+                quincenas={quincenasDisponibles}
+              />
+            )}
             <button
               onClick={() => setShowFilters(!showFilters)}
               className={`px-2 lg:px-3 py-1 rounded text-[10px] font-bold uppercase tracking-wider border transition-all ${
@@ -105,13 +112,7 @@ function PendientesPage() {
             }}
           />
         )}
-        <QuincenaFilter
-          visible={activeFilter === "IVA SPE"}
-          activeQuincena={activeQuincena}
-          onChange={setActiveQuincena}
-          quincenas={quincenasDisponibles}
-        />
-        <DataTable rows={rows} totalClientes={clientsCount} />
+          <DataTable rows={rows} totalClientes={clientsCount} />
       </SectionCard>
     </AppShell>
   );

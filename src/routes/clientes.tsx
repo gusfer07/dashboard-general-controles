@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AppShell } from "@/components/app-shell";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import {
@@ -32,6 +32,18 @@ export const Route = createFileRoute("/clientes")({
 
 function ClientesPage() {
   const { clients } = useDashboardData();
+  const navigate = useNavigate();
+
+  const sorted = [...clients].sort((a, b) => {
+    const cualA = a.cualidad ?? "";
+    const cualB = b.cualidad ?? "";
+    if (cualA !== cualB) {
+      if (cualA === "SPE") return -1;
+      if (cualB === "SPE") return 1;
+      return cualA.localeCompare(cualB);
+    }
+    return a.name.localeCompare(b.name);
+  });
 
   return (
     <AppShell title="Todos los Clientes">
@@ -48,19 +60,24 @@ function ClientesPage() {
             <TableRow className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
               <TableHead className="px-6 py-3">Nombre</TableHead>
               <TableHead className="px-6 py-3">RIF</TableHead>
+              <TableHead className="px-6 py-3">Cualidad</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody className="divide-y divide-border">
-            {clients.map((client) => (
+            {sorted.map((client) => (
               <TableRow
                 key={client.id}
-                className="hover:bg-secondary/50 transition-colors"
+                onClick={() => navigate({ to: "/cliente/$rif", params: { rif: client.rif } })}
+                className="hover:bg-secondary/50 transition-colors cursor-pointer"
               >
-                <TableCell className="px-6 py-3 font-medium text-xs lg:text-sm">
+                <TableCell className="px-6 py-3 font-bold text-xs lg:text-sm">
                   {client.name}
                 </TableCell>
-                <TableCell className="px-6 py-3 text-[10px] lg:text-xs font-mono text-muted-foreground">
+                <TableCell className="px-6 py-3 text-[10px] lg:text-xs font-mono text-muted-foreground whitespace-nowrap">
                   {client.rif}
+                </TableCell>
+                <TableCell className="px-6 py-3 text-[10px] lg:text-xs font-mono text-muted-foreground whitespace-nowrap">
+                  {client.cualidad ?? "—"}
                 </TableCell>
               </TableRow>
             ))}

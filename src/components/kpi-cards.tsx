@@ -31,12 +31,12 @@ export function KpiCards({ kpis, onKpiClick }: { kpis: Kpi[]; onKpiClick?: (inde
           <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
             {k.label}
           </p>
-          <div className="mt-2 flex items-baseline gap-2">
+          <div className="mt-2">
             <span className="text-3xl font-bold tracking-tighter">{k.value}</span>
             {k.hint && (
-              <span className={"text-xs font-bold " + toneText[k.hintTone ?? "muted"]}>
+              <p className={"text-[11px] font-bold mt-0.5 " + toneText[k.hintTone ?? "muted"]}>
                 {k.hint}
-              </span>
+              </p>
             )}
           </div>
           {k.progress ? (

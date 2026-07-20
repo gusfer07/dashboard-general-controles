@@ -175,6 +175,47 @@ function getDppOrRetislrStatus(
   return "Pendiente";
 }
 
+export function computeClientStatuses(rows: Row[]): {
+  name: string;
+  rif: string;
+  estado: Estado;
+  rows: Row[];
+}[] {
+  const clientMap = new Map<string, Row[]>();
+  rows.forEach((r) => {
+    const key = r.cliente.rif;
+    if (!clientMap.has(key)) clientMap.set(key, []);
+    clientMap.get(key)!.push(r);
+  });
+
+  const result: {
+    name: string;
+    rif: string;
+    estado: Estado;
+    rows: Row[];
+  }[] = [];
+  for (const [, clientRows] of clientMap) {
+    const allAlDia = clientRows.every((rr) => rr.estado === "Al día");
+    const anyVencido = clientRows.some((rr) => rr.estado === "Vencido");
+    const anyPendiente = clientRows.some(
+      (rr) => rr.estado === "Pendiente" || rr.estado === "En proceso",
+    );
+    let estado: Estado;
+    if (allAlDia) estado = "Al día";
+    else if (anyVencido) estado = "Vencido";
+    else if (anyPendiente) estado = "Pendiente";
+    else estado = "N/A";
+
+    result.push({
+      name: clientRows[0].cliente.name,
+      rif: clientRows[0].cliente.rif,
+      estado,
+      rows: clientRows,
+    });
+  }
+  return result;
+}
+
 export function useDashboardData() {
   const clientsQuery = useSuspenseQuery(clientsQueryOptions);
   const responsiblesQuery = useSuspenseQuery(responsiblesQueryOptions);
@@ -205,8 +246,8 @@ export function useDashboardData() {
     informeEnviado: boolean | null | undefined,
   ): string[] | undefined {
     const pending: string[] = [];
-    if (!ivaDeclarado) pending.push("IVA declarado");
-    if (!informeEnviado) pending.push("Informe enviado");
+    if (!ivaDeclarado) pending.push("Declaracion de IVA");
+    if (!informeEnviado) pending.push("Informe");
     return pending.length > 0 ? pending : undefined;
   }
 
@@ -283,7 +324,7 @@ export function useDashboardData() {
       responsable: resp ? { initials: resp.initials, name: resp.name } : defaultResp,
       checksPendientes: booleanPendingChecks(
         [item.declarado, item.enviado, item.pagado, item.certificado],
-        ["Declarado", "Enviado", "Pagado", "Certificado"],
+        ["Declarado", "Enviado", "Pagar", "Certificado"],
       ),
     });
   });
@@ -305,7 +346,7 @@ export function useDashboardData() {
       responsable: resp ? { initials: resp.initials, name: resp.name } : defaultResp,
       checksPendientes: booleanPendingChecks(
         [item.declarado, item.pagado],
-        ["Declarado", "Pagado"],
+        ["Declarado", "Pagar"],
       ),
     });
   });
@@ -327,7 +368,7 @@ export function useDashboardData() {
       responsable: resp ? { initials: resp.initials, name: resp.name } : defaultResp,
       checksPendientes: booleanPendingChecks(
         [item.declarado, item.pagado],
-        ["Declarado", "Pagado"],
+        ["Declarado", "Pagar"],
       ),
     });
   });
@@ -342,52 +383,50 @@ export function useDashboardData() {
   const allRows = [...tributariasRows, ...parafiscalesRows, ...librosRows];
   const totalObligations = allRows.length;
 
-  // Group rows by client to compute client-level status
-  const clientRowMap = new Map<string, Row[]>();
-  allRows.forEach((r) => {
-    const key = `${r.cliente.rif}`;
-    if (!clientRowMap.has(key)) clientRowMap.set(key, []);
-    clientRowMap.get(key)!.push(r);
+  // Filter rows to current month/period for client-level KPI
+  const now = new Date();
+  const currentPeriod = `${MONTHS_ES[now.getMonth()]} ${now.getFullYear()}`;
+  const periodRows = allRows.filter((r) => {
+    if (r.vencimiento === "N/A") return false;
+    const parts = r.vencimiento.split("-");
+    return parts.length === 3 && parts[0].length <= 2 && `${parts[1]} ${parts[2]}` === currentPeriod;
   });
+
+  const allClientStatuses = computeClientStatuses(periodRows);
   let clientesAlDiaCount = 0;
-  for (const [, rows] of clientRowMap) {
-    if (rows.every((rr) => rr.estado === "Al día")) {
-      clientesAlDiaCount++;
-    }
+  let clientesPendientesCount = 0;
+  let clientesVencidosCount = 0;
+  for (const cs of allClientStatuses) {
+    if (cs.estado === "Al día") clientesAlDiaCount++;
+    else if (cs.estado === "Vencido") clientesVencidosCount++;
+    else if (cs.estado === "Pendiente") clientesPendientesCount++;
   }
 
-  const alDiaCount = allRows.filter((r) => r.estado === "Al día").length;
-  const pendienteCount = allRows.filter(
-    (r) => r.estado === "Pendiente" || r.estado === "En proceso",
-  ).length;
-  const vencidaCount = allRows.filter((r) => r.estado === "Vencido").length;
-
-  const alDiaPct = totalObligations > 0 ? Math.round((alDiaCount / totalObligations) * 100) : 0;
-  const pendientePct =
-    totalObligations > 0 ? Math.round((pendienteCount / totalObligations) * 100) : 0;
-  const vencidaPct = totalObligations > 0 ? Math.round((vencidaCount / totalObligations) * 100) : 0;
+  const clientesAlDiaPct = clients.length > 0 ? Math.round((clientesAlDiaCount / clients.length) * 100) : 0;
+  const clientesPendientesPct = clients.length > 0 ? Math.round((clientesPendientesCount / clients.length) * 100) : 0;
+  const clientesVencidosPct = clients.length > 0 ? Math.round((clientesVencidosCount / clients.length) * 100) : 0;
 
   const kpis = [
     {
       label: "Clientes al día",
       value: String(clientesAlDiaCount).padStart(2, "0"),
-      hint: `${alDiaPct}% del total`,
+      hint: `${clientesAlDiaPct}% de clientes`,
       hintTone: "success" as const,
-      progress: { value: alDiaPct, tone: "success" as const },
+      progress: { value: clientesAlDiaPct, tone: "success" as const },
     },
     {
-      label: "Pendientes",
-      value: String(pendienteCount).padStart(2, "0"),
-      hint: `${pendientePct}% del total`,
+      label: "Clientes pendientes",
+      value: String(clientesPendientesCount).padStart(2, "0"),
+      hint: `${clientesPendientesPct}% de clientes`,
       hintTone: "warning" as const,
-      progress: { value: pendientePct, tone: "warning" as const },
+      progress: { value: clientesPendientesPct, tone: "warning" as const },
     },
     {
-      label: "Vencidas",
-      value: String(vencidaCount).padStart(2, "0"),
-      hint: `${vencidaPct}% del total`,
+      label: "Clientes vencidos",
+      value: String(clientesVencidosCount).padStart(2, "0"),
+      hint: `${clientesVencidosPct}% de clientes`,
       hintTone: "danger" as const,
-      progress: { value: vencidaPct, tone: "danger" as const },
+      progress: { value: clientesVencidosPct, tone: "danger" as const },
     },
     {
       label: "Total Clientes",

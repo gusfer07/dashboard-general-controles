@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { KpiCards } from "@/components/kpi-cards";
+import { CalendarView } from "@/components/calendar-view";
 import { DataTable, SectionCard, TableToolbar } from "@/components/data-table";
 import { PeriodFilter } from "@/components/period-filter";
 import { QuincenaFilter, computeQuincenas, filterByQuincena } from "@/components/quincena-filter";
@@ -39,6 +40,7 @@ function Index() {
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const [activePeriod, setActivePeriod] = useState<string | null>(null);
   const [activeQuincena, setActiveQuincena] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<"table" | "calendar">("table");
 
   const baseAlertas = allRows.filter((r) => r.estado === "Vencido" || r.estado === "Pendiente");
 
@@ -46,12 +48,8 @@ function Index() {
     ? baseAlertas.filter((r) => r.concepto === activeFilter)
     : baseAlertas;
 
-  const ivaSpeRows = baseAlertas.filter((r) => r.concepto === "IVA SPE");
-  const quincenasDisponibles = computeQuincenas(ivaSpeRows);
-  const quincenaFiltered = filterByQuincena(conceptFiltered, activeQuincena);
-
-  const alertas = activePeriod
-    ? quincenaFiltered.filter((r) => {
+  const periodFiltered = activePeriod
+    ? conceptFiltered.filter((r) => {
         if (r.vencimiento === "N/A") return false;
         const parts = r.vencimiento.split("-");
         if (parts.length === 3 && parts[0].length <= 2) {
@@ -59,7 +57,11 @@ function Index() {
         }
         return false;
       })
-    : quincenaFiltered;
+    : conceptFiltered;
+
+  const ivaSpeRows = periodFiltered.filter((r) => r.concepto === "IVA SPE");
+  const quincenasDisponibles = computeQuincenas(ivaSpeRows);
+  const alertas = filterByQuincena(periodFiltered, activeQuincena);
 
   const tribPendientes = tributarias.filter(
     (r) => r.estado === "Vencido" || r.estado === "Pendiente" || r.estado === "En proceso",
@@ -75,7 +77,7 @@ function Index() {
   const paraVencidas = parafiscales.filter((r) => r.estado === "Vencido").length;
   const libroVencidas = libros.filter((r) => r.estado === "Vencido").length;
 
-  const kpiRoutes = ["/clientesaldia", "/pendientes", "/vencidas", "/clientes"];
+  const kpiRoutes = ["/clientesaldia", "/clientespendientes", "/clientesvencidos", "/clientes"];
 
   return (
     <AppShell title="Dashboard General">
@@ -191,28 +193,50 @@ function Index() {
       </div>
 
       <SectionCard
-        title="Alertas"
+        title={
+          <button
+            onClick={() => setViewMode((v) => (v === "table" ? "calendar" : "table"))}
+            className={`px-2 lg:px-3 py-1 rounded text-[10px] font-bold uppercase tracking-wider border transition-all ${
+              viewMode === "calendar"
+                ? "bg-primary text-primary-foreground border-primary"
+                : "bg-surface border-border hover:bg-secondary"
+            }`}
+          >
+            {viewMode === "table" ? "Calendario" : "Tabla"}
+          </button>
+        }
         actions={
           <>
-            <PeriodFilter
-              rows={conceptFiltered}
-              activePeriod={activePeriod}
-              onChange={setActivePeriod}
-            />
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className={`px-2 lg:px-3 py-1 rounded text-[10px] font-bold uppercase tracking-wider border transition-all ${
-                showFilters
-                  ? "bg-primary text-primary-foreground border-primary"
-                  : "bg-surface border-border hover:bg-secondary"
-              }`}
-            >
-              Filtros
-            </button>
+            {viewMode === "table" && (
+              <>
+                <PeriodFilter
+                  rows={conceptFiltered}
+                  activePeriod={activePeriod}
+                  onChange={setActivePeriod}
+                />
+                {activeFilter === "IVA SPE" && (
+                  <QuincenaFilter
+                    activeQuincena={activeQuincena}
+                    onChange={setActiveQuincena}
+                    quincenas={quincenasDisponibles}
+                  />
+                )}
+                <button
+                  onClick={() => setShowFilters(!showFilters)}
+                  className={`px-2 lg:px-3 py-1 rounded text-[10px] font-bold uppercase tracking-wider border transition-all ${
+                    showFilters
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "bg-surface border-border hover:bg-secondary"
+                  }`}
+                >
+                  Filtros
+                </button>
+              </>
+            )}
           </>
         }
       >
-        {showFilters && (
+        {viewMode === "table" && showFilters && (
           <TableToolbar
             chips={[...conceptosPorTab.tributarias]}
             activeChip={activeFilter}
@@ -222,13 +246,11 @@ function Index() {
             }}
           />
         )}
-        <QuincenaFilter
-          visible={activeFilter === "IVA SPE"}
-          activeQuincena={activeQuincena}
-          onChange={setActiveQuincena}
-          quincenas={quincenasDisponibles}
-        />
-        <DataTable rows={alertas} totalClientes={clientsCount} />
+        {viewMode === "table" ? (
+          <DataTable rows={alertas} totalClientes={clientsCount} />
+        ) : (
+          <CalendarView rows={baseAlertas} />
+        )}
       </SectionCard>
     </AppShell>
   );

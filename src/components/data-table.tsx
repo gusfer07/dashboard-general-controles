@@ -243,14 +243,14 @@ export function SectionCard({
   actions,
   children,
 }: {
-  title: string;
+  title: React.ReactNode;
   actions?: React.ReactNode;
   children: React.ReactNode;
 }) {
   return (
-    <section className="bg-surface border border-border rounded-sm overflow-x-auto">
+    <section className="bg-surface border border-border rounded-sm">
       <div className="border-b border-border bg-secondary/40 px-4 lg:px-6 py-3 lg:py-4 flex items-center justify-between gap-2">
-        <h2 className="text-xs lg:text-sm font-bold shrink-0">{title}</h2>
+        <div className="flex items-center gap-1.5 lg:gap-2 shrink-0">{title}</div>
         <div className="flex gap-1.5 lg:gap-2 shrink-0">{actions}</div>
       </div>
       {children}

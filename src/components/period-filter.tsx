@@ -38,10 +38,12 @@ export function PeriodFilter({
   rows,
   activePeriod,
   onChange,
+  hideAllOption,
 }: {
   rows: Row[];
   activePeriod: string | null;
   onChange: (period: string | null) => void;
+  hideAllOption?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -78,17 +80,19 @@ export function PeriodFilter({
       </button>
       {open && (
         <div className="absolute right-0 lg:left-0 top-full mt-1 z-50 min-w-[140px] lg:min-w-[160px] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-lg">
-          <button
-            onClick={() => {
-              onChange(null);
-              setOpen(false);
-            }}
-            className={`w-full text-left px-2 py-1.5 text-xs rounded hover:bg-secondary transition-colors ${
-              activePeriod === null ? "bg-primary/10 font-bold" : ""
-            }`}
-          >
-            Todos los períodos
-          </button>
+          {!hideAllOption && (
+            <button
+              onClick={() => {
+                onChange(null);
+                setOpen(false);
+              }}
+              className={`w-full text-left px-2 py-1.5 text-xs rounded hover:bg-secondary transition-colors ${
+                activePeriod === null ? "bg-primary/10 font-bold" : ""
+              }`}
+            >
+              Todos los períodos
+            </button>
+          )}
           {availablePeriods.map((p) => (
             <button
               key={p}

@@ -5,8 +5,6 @@ const MONTH_NUM: Record<string, string> = {
   JUL: "07", AGO: "08", SEP: "09", OCT: "10", NOV: "11", DIC: "12",
 };
 
-const MONTH_NAMES = ["", "ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC"];
-
 export function getQuincenca(vencimiento: string): string | null {
   const parts = vencimiento.split("-");
   if (parts.length !== 3) return null;
@@ -21,10 +19,7 @@ export function getQuincenca(vencimiento: string): string | null {
 function quincenaLabel(code: string): string {
   const parts = code.split("-");
   if (parts.length !== 2) return code;
-  const monthYear = parts[1];
-  const month = parseInt(monthYear.substring(0, 2), 10);
-  const label = parts[0] === "01" ? "Primera quincena" : "Segunda quincena";
-  return `${label} de ${MONTH_NAMES[month] ?? ""} ${monthYear.substring(2)}`;
+  return parts[0] === "01" ? "Primera" : "Segunda";
 }
 
 export function computeQuincenas(rows: { vencimiento: string }[]): string[] {
@@ -44,19 +39,16 @@ export function filterByQuincena(
 ): { vencimiento: string; concepto: string }[] {
   if (!activeQuincena) return rows;
   return rows.filter((r) => {
-    if (r.concepto !== "IVA SPE") return true;
     const q = getQuincenca(r.vencimiento);
     return q === activeQuincena;
   });
 }
 
 export function QuincenaFilter({
-  visible,
   activeQuincena,
   onChange,
   quincenas,
 }: {
-  visible: boolean;
   activeQuincena: string | null;
   onChange: (q: string | null) => void;
   quincenas: string[];
@@ -74,24 +66,19 @@ export function QuincenaFilter({
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
-  if (!visible) return null;
-
   return (
-    <div className="relative border-b border-border bg-surface px-4 lg:px-6 py-2 lg:py-3 flex items-center gap-2 flex-wrap" ref={ref}>
-      <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground shrink-0">
-        QUINCENA
-      </span>
+    <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen(!open)}
         className="px-2 lg:px-3 py-1.5 bg-surface border border-border rounded-md text-[10px] lg:text-xs font-bold uppercase tracking-wider flex items-center gap-1 hover:bg-secondary transition-colors"
       >
-        {activeQuincena ? quincenaLabel(activeQuincena) : "Seleccionar"}
+        {activeQuincena ? quincenaLabel(activeQuincena) : "Quincena"}
         <svg className="size-3 opacity-60" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
       </button>
       {open && (
-        <div className="absolute left-4 lg:left-6 top-full mt-1 z-50 min-w-[200px] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-lg">
+        <div className="absolute right-0 lg:left-0 top-full mt-1 z-50 min-w-[180px] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-lg">
           <button
             onClick={() => {
               onChange(null);

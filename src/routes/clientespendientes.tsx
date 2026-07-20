@@ -22,9 +22,9 @@ import {
   type Estado,
 } from "@/hooks/use-dashboard-data";
 
-export const Route = createFileRoute("/clientesaldia")({
+export const Route = createFileRoute("/clientespendientes")({
   head: () => ({
-    meta: [{ title: "Clientes al día" }],
+    meta: [{ title: "Clientes pendientes" }],
   }),
   loader: async ({ context: { queryClient } }) => {
     await Promise.all([
@@ -37,7 +37,7 @@ export const Route = createFileRoute("/clientesaldia")({
       queryClient.ensureQueryData(retislrQueryOptions),
     ]);
   },
-  component: ClientesAlDiaPage,
+  component: ClientesPendientesPage,
 });
 
 const estadoStyles: Record<string, { dot: string; text: string }> = {
@@ -55,7 +55,7 @@ function currentPeriod(): string {
   return `${MONTHS_ES[now.getMonth()]} ${now.getFullYear()}`;
 }
 
-function ClientesAlDiaPage() {
+function ClientesPendientesPage() {
   const { allRows } = useDashboardData();
   const [activePeriod, setActivePeriod] = useState<string>(currentPeriod);
   const [activeCualidad, setActiveCualidad] = useState<string>("TODOS");
@@ -82,14 +82,14 @@ function ClientesAlDiaPage() {
   const activeRows = filterByQuincena(cualidadFiltered, activeQuincena);
 
   const allStatuses = computeClientStatuses(activeRows);
-  const clientes = allStatuses.filter((c) => c.estado === "Al día");
+  const clientes = allStatuses.filter((c) => c.estado === "Pendiente");
 
   return (
-    <AppShell title="Clientes al día">
+    <AppShell title="Clientes pendientes">
       <div className="space-y-2">
-        <h1 className="text-2xl lg:text-3xl font-bold tracking-tight">Clientes al día</h1>
+        <h1 className="text-2xl lg:text-3xl font-bold tracking-tight">Clientes pendientes</h1>
         <p className="text-sm text-muted-foreground">
-          {clientes.length} clientes con todas sus declaraciones al día
+          {clientes.length} clientes con declaraciones pendientes
         </p>
       </div>
 
@@ -151,7 +151,7 @@ function ClientesAlDiaPage() {
                       <td className="px-3 lg:px-6 py-3 lg:py-4">
                         <div className="flex items-center gap-1.5 lg:gap-2">
                           <span className={"size-1.5 rounded-full " + s.dot} />
-                          <span className="text-[10px] lg:text-xs font-bold uppercase tracking-wider text-success whitespace-nowrap">
+                          <span className={"text-[10px] lg:text-xs font-bold uppercase tracking-wider whitespace-nowrap " + s.text}>
                             {c.estado}
                           </span>
                         </div>
@@ -162,11 +162,40 @@ function ClientesAlDiaPage() {
                     >
                       <td colSpan={2} className="px-3 lg:px-6 py-0 overflow-hidden">
                         <div
-                          className={`transition-all duration-300 ${isExpanded ? "max-h-[100px] py-2 lg:py-3" : "max-h-0 py-0"}`}
+                          className={`transition-all duration-300 ${isExpanded ? "max-h-[500px] py-2 lg:py-3" : "max-h-0 py-0"}`}
                         >
-                          <span className="text-[10px] font-bold uppercase tracking-wider text-success">
-                            Todo completado
-                          </span>
+                          <table className="w-full text-left">
+                            <thead>
+                              <tr className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest border-b border-border/50">
+                                <th className="pr-2 py-1">Concepto</th>
+                                <th className="pr-2 py-1 whitespace-nowrap">Estado</th>
+                                <th className="pr-2 py-1">Vencimiento</th>
+                                <th className="py-1">Por realizar</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {c.rows.map((row, i) => {
+                                const rs = estadoStyles[row.estado];
+                                return (
+                                  <tr key={i} className="text-[11px] border-b border-border/30">
+                                    <td className="pr-2 py-1.5 font-semibold">{row.concepto}</td>
+                                    <td className="pr-2 py-1.5">
+                                      <div className="flex items-center gap-1">
+                                        <span className={"size-1 rounded-full " + rs.dot} />
+                                        <span className={rs.text}>{row.estado}</span>
+                                      </div>
+                                    </td>
+                                    <td className="pr-2 py-1.5 font-mono text-muted-foreground">{row.vencimiento}</td>
+                                    <td className="py-1.5">
+                                      {row.checksPendientes && row.checksPendientes.length > 0 ? (
+                                        <span className={rs.text}>{row.checksPendientes.join(", ")}</span>
+                                      ) : null}
+                                    </td>
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
                         </div>
                       </td>
                     </tr>
