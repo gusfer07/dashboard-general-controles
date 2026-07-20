@@ -19,11 +19,15 @@ const toneBar: Record<string, string> = {
   danger: "bg-danger",
 };
 
-export function KpiCards({ kpis }: { kpis: Kpi[] }) {
+export function KpiCards({ kpis, onKpiClick }: { kpis: Kpi[]; onKpiClick?: (index: number) => void }) {
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
-      {kpis.map((k) => (
-        <div key={k.label} className="bg-surface p-5 border border-border rounded-sm shadow-sm">
+      {kpis.map((k, i) => (
+        <div
+          key={k.label}
+          onClick={() => onKpiClick?.(i)}
+          className="bg-surface p-5 border border-border rounded-sm shadow-sm cursor-pointer hover:border-primary/40 hover:shadow-sm transition-all active:scale-[0.98]"
+        >
           <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
             {k.label}
           </p>

@@ -387,6 +387,7 @@ export function useDashboardData() {
     libros: librosRows,
     kpis,
     allRows,
+    clients,
     clientsCount: clients.length,
   };
 }
