@@ -93,7 +93,7 @@ export function DataTable({
       <table className="w-full text-left">
         <thead>
           <tr className="border-b border-border text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-            <th className={`px-3 lg:px-6 py-3 font-semibold ${hideClient ? "hidden" : ""}`}>Cliente / Empresa</th>
+            <th className={`px-3 lg:px-6 py-3 font-semibold ${hideClient ? "hidden" : ""}`}>Cliente</th>
             <th className="px-3 lg:px-6 py-3 font-semibold">Concepto</th>
             <th className="px-3 lg:px-6 py-3 font-semibold">Estado</th>
             <th className="px-3 lg:px-6 py-3 font-semibold">Vencimiento</th>

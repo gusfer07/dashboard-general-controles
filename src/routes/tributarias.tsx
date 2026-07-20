@@ -4,6 +4,7 @@ import { AppShell } from "@/components/app-shell";
 import { KpiCards } from "@/components/kpi-cards";
 import { DataTable, SectionCard, TableToolbar } from "@/components/data-table";
 import { PeriodFilter } from "@/components/period-filter";
+import { QuincenaFilter, computeQuincenas, filterByQuincena } from "@/components/quincena-filter";
 import {
   useDashboardData,
   clientsQueryOptions,
@@ -45,13 +46,18 @@ function TributariasPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const [activePeriod, setActivePeriod] = useState<string | null>(null);
+  const [activeQuincena, setActiveQuincena] = useState<string | null>(null);
 
   const conceptFiltered = activeFilter
     ? tributarias.filter((r) => r.concepto === activeFilter)
     : tributarias;
 
+  const ivaSpeRows = tributarias.filter((r) => r.concepto === "IVA SPE");
+  const quincenasDisponibles = computeQuincenas(ivaSpeRows);
+  const quincenaFiltered = filterByQuincena(conceptFiltered, activeQuincena);
+
   const filteredRows = activePeriod
-    ? conceptFiltered.filter((r) => {
+    ? quincenaFiltered.filter((r) => {
         if (r.vencimiento === "N/A") return false;
         const parts = r.vencimiento.split("-");
         if (parts.length === 3 && parts[0].length <= 2) {
@@ -59,9 +65,8 @@ function TributariasPage() {
         }
         return false;
       })
-    : conceptFiltered;
+    : quincenaFiltered;
 
-  // Calculate dynamic KPIs
   const total = tributarias.length;
   const alDia = tributarias.filter((r) => r.estado === "Al día").length;
   const enProceso = tributarias.filter(
@@ -133,9 +138,18 @@ function TributariasPage() {
           <TableToolbar
             chips={[...conceptosPorTab.tributarias]}
             activeChip={activeFilter}
-            onChipClick={setActiveFilter}
+            onChipClick={(chip) => {
+              setActiveFilter(chip);
+              if (chip !== "IVA SPE") setActiveQuincena(null);
+            }}
           />
         )}
+        <QuincenaFilter
+          visible={activeFilter === "IVA SPE"}
+          activeQuincena={activeQuincena}
+          onChange={setActiveQuincena}
+          quincenas={quincenasDisponibles}
+        />
         <DataTable rows={filteredRows} totalClientes={clientsCount} />
       </SectionCard>
     </AppShell>

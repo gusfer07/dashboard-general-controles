@@ -3,6 +3,7 @@ import { useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { DataTable, SectionCard, TableToolbar } from "@/components/data-table";
 import { PeriodFilter } from "@/components/period-filter";
+import { QuincenaFilter, computeQuincenas, filterByQuincena } from "@/components/quincena-filter";
 import { conceptosPorTab } from "@/lib/mock-data";
 import {
   useDashboardData,
@@ -38,6 +39,7 @@ function VencidasPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const [activePeriod, setActivePeriod] = useState<string | null>(null);
+  const [activeQuincena, setActiveQuincena] = useState<string | null>(null);
 
   const baseRows = allRows.filter((r) => r.estado === "Vencido");
 
@@ -45,8 +47,12 @@ function VencidasPage() {
     ? baseRows.filter((r) => r.concepto === activeFilter)
     : baseRows;
 
+  const ivaSpeRows = baseRows.filter((r) => r.concepto === "IVA SPE");
+  const quincenasDisponibles = computeQuincenas(ivaSpeRows);
+  const quincenaFiltered = filterByQuincena(conceptFiltered, activeQuincena);
+
   const rows = activePeriod
-    ? conceptFiltered.filter((r) => {
+    ? quincenaFiltered.filter((r) => {
         if (r.vencimiento === "N/A") return false;
         const parts = r.vencimiento.split("-");
         if (parts.length === 3 && parts[0].length <= 2) {
@@ -54,7 +60,7 @@ function VencidasPage() {
         }
         return false;
       })
-    : conceptFiltered;
+    : quincenaFiltered;
 
   return (
     <AppShell title="Declaraciones Vencidas">
@@ -91,9 +97,18 @@ function VencidasPage() {
           <TableToolbar
             chips={[...conceptosPorTab.tributarias]}
             activeChip={activeFilter}
-            onChipClick={setActiveFilter}
+            onChipClick={(chip) => {
+              setActiveFilter(chip);
+              if (chip !== "IVA SPE") setActiveQuincena(null);
+            }}
           />
         )}
+        <QuincenaFilter
+          visible={activeFilter === "IVA SPE"}
+          activeQuincena={activeQuincena}
+          onChange={setActiveQuincena}
+          quincenas={quincenasDisponibles}
+        />
         <DataTable rows={rows} totalClientes={clientsCount} />
       </SectionCard>
     </AppShell>
