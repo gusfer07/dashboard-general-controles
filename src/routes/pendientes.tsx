@@ -1,6 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
 import { AppShell } from "@/components/app-shell";
-import { DataTable } from "@/components/data-table";
+import { DataTable, SectionCard, TableToolbar } from "@/components/data-table";
+import { PeriodFilter } from "@/components/period-filter";
+import { conceptosPorTab } from "@/lib/mock-data";
 import {
   useDashboardData,
   clientsQueryOptions,
@@ -32,9 +35,28 @@ export const Route = createFileRoute("/pendientes")({
 
 function PendientesPage() {
   const { allRows, clientsCount } = useDashboardData();
-  const rows = allRows.filter(
+  const [showFilters, setShowFilters] = useState(false);
+  const [activeFilter, setActiveFilter] = useState<string | null>(null);
+  const [activePeriod, setActivePeriod] = useState<string | null>(null);
+
+  const baseRows = allRows.filter(
     (r) => r.estado === "Pendiente" || r.estado === "En proceso",
   );
+
+  const conceptFiltered = activeFilter
+    ? baseRows.filter((r) => r.concepto === activeFilter)
+    : baseRows;
+
+  const rows = activePeriod
+    ? conceptFiltered.filter((r) => {
+        if (r.vencimiento === "N/A") return false;
+        const parts = r.vencimiento.split("-");
+        if (parts.length === 3 && parts[0].length <= 2) {
+          return `${parts[1]} ${parts[2]}` === activePeriod;
+        }
+        return false;
+      })
+    : conceptFiltered;
 
   return (
     <AppShell title="Declaraciones Pendientes">
@@ -45,9 +67,37 @@ function PendientesPage() {
         </p>
       </div>
 
-      <div className="bg-surface border border-border rounded-sm overflow-x-auto">
+      <SectionCard
+        title="Detalle por cliente"
+        actions={
+          <>
+            <PeriodFilter
+              rows={conceptFiltered}
+              activePeriod={activePeriod}
+              onChange={setActivePeriod}
+            />
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className={`px-2 lg:px-3 py-1 rounded text-[10px] font-bold uppercase tracking-wider border transition-all ${
+                showFilters
+                  ? "bg-primary text-primary-foreground border-primary"
+                  : "bg-surface border-border hover:bg-secondary"
+              }`}
+            >
+              Filtros
+            </button>
+          </>
+        }
+      >
+        {showFilters && (
+          <TableToolbar
+            chips={[...conceptosPorTab.tributarias]}
+            activeChip={activeFilter}
+            onChipClick={setActiveFilter}
+          />
+        )}
         <DataTable rows={rows} totalClientes={clientsCount} />
-      </div>
+      </SectionCard>
     </AppShell>
   );
 }
