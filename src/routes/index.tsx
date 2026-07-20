@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { KpiCards } from "@/components/kpi-cards";
@@ -15,15 +15,6 @@ import {
   dppQueryOptions,
   retislrQueryOptions,
 } from "@/hooks/use-dashboard-data";
-import { Link } from "@tanstack/react-router";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
-import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 
 export const Route = createFileRoute("/")({
   loader: async ({ context: { queryClient } }) => {
@@ -41,11 +32,11 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
-  const { tributarias, parafiscales, libros, kpis, allRows, clients, clientsCount } = useDashboardData();
+  const { tributarias, parafiscales, libros, kpis, allRows, clientsCount } = useDashboardData();
+  const navigate = useNavigate();
   const [showFilters, setShowFilters] = useState(false);
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const [activePeriod, setActivePeriod] = useState<string | null>(null);
-  const [selectedKpi, setSelectedKpi] = useState<number | null>(null);
 
   const baseAlertas = allRows.filter((r) => r.estado === "Vencido" || r.estado === "Pendiente");
 
@@ -78,19 +69,14 @@ function Index() {
   const paraVencidas = parafiscales.filter((r) => r.estado === "Vencido").length;
   const libroVencidas = libros.filter((r) => r.estado === "Vencido").length;
 
-  const alDiaRows = allRows.filter((r) => r.estado === "Al día");
-  const pendienteRows = allRows.filter(
-    (r) => r.estado === "Pendiente" || r.estado === "En proceso",
-  );
-  const vencidaRows = allRows.filter((r) => r.estado === "Vencido");
-
-  function handleKpiClick(index: number) {
-    setSelectedKpi(index);
-  }
+  const kpiRoutes = ["/declaracionesaldia", "/pendientes", "/vencidas", "/clientes"];
 
   return (
     <AppShell title="Dashboard General">
-      <KpiCards kpis={kpis} onKpiClick={handleKpiClick} />
+      <KpiCards
+        kpis={kpis}
+        onKpiClick={(index) => navigate({ to: kpiRoutes[index] })}
+      />
 
       <div className="hidden lg:grid grid-cols-1 lg:grid-cols-3 gap-6">
         {[
@@ -229,68 +215,6 @@ function Index() {
         )}
         <DataTable rows={alertas} totalClientes={clientsCount} />
       </SectionCard>
-
-      <Dialog open={selectedKpi !== null} onOpenChange={(open) => { if (!open) setSelectedKpi(null); }}>
-        <DialogContent className="max-w-4xl max-h-[85dvh] overflow-y-auto w-[95vw] rounded-lg">
-          <DialogHeader>
-            <DialogTitle className="text-base lg:text-lg">
-              {selectedKpi === 0 && "Declaraciones al día"}
-              {selectedKpi === 1 && "Declaraciones Pendientes"}
-              {selectedKpi === 2 && "Declaraciones Vencidas"}
-              {selectedKpi === 3 && "Todos los Clientes"}
-            </DialogTitle>
-            <DialogDescription>
-              {selectedKpi === 0 && `${alDiaRows.length} declaraciones al día`}
-              {selectedKpi === 1 && `${pendienteRows.length} declaraciones pendientes`}
-              {selectedKpi === 2 && `${vencidaRows.length} declaraciones vencidas`}
-              {selectedKpi === 3 && `${clients.length} clientes registrados`}
-            </DialogDescription>
-          </DialogHeader>
-
-          {selectedKpi !== null && selectedKpi < 3 && (
-            <div className="-mx-6">
-              <DataTable
-                rows={
-                  selectedKpi === 0
-                    ? alDiaRows
-                    : selectedKpi === 1
-                      ? pendienteRows
-                      : vencidaRows
-                }
-                totalClientes={clientsCount}
-              />
-            </div>
-          )}
-
-          {selectedKpi === 3 && (
-            <div className="overflow-x-auto -mx-6">
-              <Table>
-                <TableHeader>
-                  <TableRow className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-                    <TableHead className="px-6 py-3">Nombre</TableHead>
-                    <TableHead className="px-6 py-3">RIF</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody className="divide-y divide-border">
-                  {clients.map((client) => (
-                    <TableRow
-                      key={client.id}
-                      className="hover:bg-secondary/50 transition-colors"
-                    >
-                      <TableCell className="px-6 py-3 font-medium text-xs lg:text-sm">
-                        {client.name}
-                      </TableCell>
-                      <TableCell className="px-6 py-3 text-[10px] lg:text-xs font-mono text-muted-foreground">
-                        {client.rif}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
     </AppShell>
   );
 }
