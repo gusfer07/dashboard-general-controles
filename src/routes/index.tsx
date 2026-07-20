@@ -297,16 +297,19 @@ function Index() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>
             </button>
-            {activeQuincena && (
-              <button
-                onClick={() => setActiveQuincena(null)}
-                className="text-[10px] text-muted-foreground hover:text-foreground underline transition-colors"
-              >
-                Limpiar
-              </button>
-            )}
             {quincenaOpen && (
               <div className="absolute left-4 lg:left-6 top-full mt-1 z-50 min-w-[200px] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-lg">
+                <button
+                  onClick={() => {
+                    setActiveQuincena(null);
+                    setQuincenaOpen(false);
+                  }}
+                  className={`w-full text-left px-2 py-1.5 text-xs rounded hover:bg-secondary transition-colors ${
+                    activeQuincena === null ? "bg-primary/10 font-bold" : ""
+                  }`}
+                >
+                  Todas
+                </button>
                 {quincenasDisponibles.map((q) => (
                   <button
                     key={q}
