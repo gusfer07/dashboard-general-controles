@@ -38,3 +38,4 @@ dist-ssr
 graphify-out/
 .opencode/
 skills-lock.json
+.vercel

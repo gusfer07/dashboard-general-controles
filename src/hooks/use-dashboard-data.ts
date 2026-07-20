@@ -342,6 +342,20 @@ export function useDashboardData() {
   const allRows = [...tributariasRows, ...parafiscalesRows, ...librosRows];
   const totalObligations = allRows.length;
 
+  // Group rows by client to compute client-level status
+  const clientRowMap = new Map<string, Row[]>();
+  allRows.forEach((r) => {
+    const key = `${r.cliente.rif}`;
+    if (!clientRowMap.has(key)) clientRowMap.set(key, []);
+    clientRowMap.get(key)!.push(r);
+  });
+  let clientesAlDiaCount = 0;
+  for (const [, rows] of clientRowMap) {
+    if (rows.every((rr) => rr.estado === "Al día")) {
+      clientesAlDiaCount++;
+    }
+  }
+
   const alDiaCount = allRows.filter((r) => r.estado === "Al día").length;
   const pendienteCount = allRows.filter(
     (r) => r.estado === "Pendiente" || r.estado === "En proceso",
@@ -355,8 +369,8 @@ export function useDashboardData() {
 
   const kpis = [
     {
-      label: "Declaraciones al día",
-      value: String(alDiaCount).padStart(2, "0"),
+      label: "Clientes al día",
+      value: String(clientesAlDiaCount).padStart(2, "0"),
       hint: `${alDiaPct}% del total`,
       hintTone: "success" as const,
       progress: { value: alDiaPct, tone: "success" as const },

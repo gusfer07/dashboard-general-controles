@@ -75,7 +75,7 @@ function Index() {
   const paraVencidas = parafiscales.filter((r) => r.estado === "Vencido").length;
   const libroVencidas = libros.filter((r) => r.estado === "Vencido").length;
 
-  const kpiRoutes = ["/declaracionesaldia", "/pendientes", "/vencidas", "/clientes"];
+  const kpiRoutes = ["/clientesaldia", "/pendientes", "/vencidas", "/clientes"];
 
   return (
     <AppShell title="Dashboard General">

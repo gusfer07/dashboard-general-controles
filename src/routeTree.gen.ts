@@ -9,15 +9,30 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as VencidasRouteImport } from './routes/vencidas'
 import { Route as TributariasRouteImport } from './routes/tributarias'
+import { Route as PendientesRouteImport } from './routes/pendientes'
 import { Route as ParafiscalesRouteImport } from './routes/parafiscales'
 import { Route as LibrosRouteImport } from './routes/libros'
+import { Route as DeclaracionesaldiaRouteImport } from './routes/declaracionesaldia'
+import { Route as ClientesaldiaRouteImport } from './routes/clientesaldia'
+import { Route as ClientesRouteImport } from './routes/clientes'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ClienteRifRouteImport } from './routes/cliente.$rif'
 
+const VencidasRoute = VencidasRouteImport.update({
+  id: '/vencidas',
+  path: '/vencidas',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TributariasRoute = TributariasRouteImport.update({
   id: '/tributarias',
   path: '/tributarias',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PendientesRoute = PendientesRouteImport.update({
+  id: '/pendientes',
+  path: '/pendientes',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ParafiscalesRoute = ParafiscalesRouteImport.update({
@@ -28,6 +43,21 @@ const ParafiscalesRoute = ParafiscalesRouteImport.update({
 const LibrosRoute = LibrosRouteImport.update({
   id: '/libros',
   path: '/libros',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DeclaracionesaldiaRoute = DeclaracionesaldiaRouteImport.update({
+  id: '/declaracionesaldia',
+  path: '/declaracionesaldia',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ClientesaldiaRoute = ClientesaldiaRouteImport.update({
+  id: '/clientesaldia',
+  path: '/clientesaldia',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ClientesRoute = ClientesRouteImport.update({
+  id: '/clientes',
+  path: '/clientes',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -43,56 +73,114 @@ const ClienteRifRoute = ClienteRifRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/clientes': typeof ClientesRoute
+  '/clientesaldia': typeof ClientesaldiaRoute
+  '/declaracionesaldia': typeof DeclaracionesaldiaRoute
   '/libros': typeof LibrosRoute
   '/parafiscales': typeof ParafiscalesRoute
+  '/pendientes': typeof PendientesRoute
   '/tributarias': typeof TributariasRoute
+  '/vencidas': typeof VencidasRoute
   '/cliente/$rif': typeof ClienteRifRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/clientes': typeof ClientesRoute
+  '/clientesaldia': typeof ClientesaldiaRoute
+  '/declaracionesaldia': typeof DeclaracionesaldiaRoute
   '/libros': typeof LibrosRoute
   '/parafiscales': typeof ParafiscalesRoute
+  '/pendientes': typeof PendientesRoute
   '/tributarias': typeof TributariasRoute
+  '/vencidas': typeof VencidasRoute
   '/cliente/$rif': typeof ClienteRifRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/clientes': typeof ClientesRoute
+  '/clientesaldia': typeof ClientesaldiaRoute
+  '/declaracionesaldia': typeof DeclaracionesaldiaRoute
   '/libros': typeof LibrosRoute
   '/parafiscales': typeof ParafiscalesRoute
+  '/pendientes': typeof PendientesRoute
   '/tributarias': typeof TributariasRoute
+  '/vencidas': typeof VencidasRoute
   '/cliente/$rif': typeof ClienteRifRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/libros' | '/parafiscales' | '/tributarias' | '/cliente/$rif'
+    | '/'
+    | '/clientes'
+    | '/clientesaldia'
+    | '/declaracionesaldia'
+    | '/libros'
+    | '/parafiscales'
+    | '/pendientes'
+    | '/tributarias'
+    | '/vencidas'
+    | '/cliente/$rif'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/libros' | '/parafiscales' | '/tributarias' | '/cliente/$rif'
+  to:
+    | '/'
+    | '/clientes'
+    | '/clientesaldia'
+    | '/declaracionesaldia'
+    | '/libros'
+    | '/parafiscales'
+    | '/pendientes'
+    | '/tributarias'
+    | '/vencidas'
+    | '/cliente/$rif'
   id:
     | '__root__'
     | '/'
+    | '/clientes'
+    | '/clientesaldia'
+    | '/declaracionesaldia'
     | '/libros'
     | '/parafiscales'
+    | '/pendientes'
     | '/tributarias'
+    | '/vencidas'
     | '/cliente/$rif'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ClientesRoute: typeof ClientesRoute
+  ClientesaldiaRoute: typeof ClientesaldiaRoute
+  DeclaracionesaldiaRoute: typeof DeclaracionesaldiaRoute
   LibrosRoute: typeof LibrosRoute
   ParafiscalesRoute: typeof ParafiscalesRoute
+  PendientesRoute: typeof PendientesRoute
   TributariasRoute: typeof TributariasRoute
+  VencidasRoute: typeof VencidasRoute
   ClienteRifRoute: typeof ClienteRifRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/vencidas': {
+      id: '/vencidas'
+      path: '/vencidas'
+      fullPath: '/vencidas'
+      preLoaderRoute: typeof VencidasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/tributarias': {
       id: '/tributarias'
       path: '/tributarias'
       fullPath: '/tributarias'
       preLoaderRoute: typeof TributariasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pendientes': {
+      id: '/pendientes'
+      path: '/pendientes'
+      fullPath: '/pendientes'
+      preLoaderRoute: typeof PendientesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/parafiscales': {
@@ -107,6 +195,27 @@ declare module '@tanstack/react-router' {
       path: '/libros'
       fullPath: '/libros'
       preLoaderRoute: typeof LibrosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/declaracionesaldia': {
+      id: '/declaracionesaldia'
+      path: '/declaracionesaldia'
+      fullPath: '/declaracionesaldia'
+      preLoaderRoute: typeof DeclaracionesaldiaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/clientesaldia': {
+      id: '/clientesaldia'
+      path: '/clientesaldia'
+      fullPath: '/clientesaldia'
+      preLoaderRoute: typeof ClientesaldiaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/clientes': {
+      id: '/clientes'
+      path: '/clientes'
+      fullPath: '/clientes'
+      preLoaderRoute: typeof ClientesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -128,9 +237,14 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ClientesRoute: ClientesRoute,
+  ClientesaldiaRoute: ClientesaldiaRoute,
+  DeclaracionesaldiaRoute: DeclaracionesaldiaRoute,
   LibrosRoute: LibrosRoute,
   ParafiscalesRoute: ParafiscalesRoute,
+  PendientesRoute: PendientesRoute,
   TributariasRoute: TributariasRoute,
+  VencidasRoute: VencidasRoute,
   ClienteRifRoute: ClienteRifRoute,
 }
 export const routeTree = rootRouteImport
