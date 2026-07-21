@@ -44,13 +44,14 @@ export function AppShell({ title, children }: { title: string; children: ReactNo
           ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
         `}
       >
-        <div className="flex lg:hidden items-center justify-end px-4 pt-3">
-          <button
-            onClick={() => setSidebarOpen(false)}
-            className="size-7 flex items-center justify-center rounded hover:bg-secondary"
-          >
-            <X className="size-3.5" />
-          </button>
+
+        <div className="flex flex-col items-center pt-6 pb-6 px-4 border-b border-border">
+          <img
+            src="/LOGO CARRASCO SIN LETRAS.png"
+            alt="Carrasco"
+            className="h-20 w-auto opacity-80"
+          />
+          <span className="mt-2 text-xs text-muted-foreground font-mono">RIF J-50478211-4</span>
         </div>
 
         <nav className="flex-1 p-4 space-y-1">
@@ -91,7 +92,7 @@ export function AppShell({ title, children }: { title: string; children: ReactNo
                   to={item.to}
                   onClick={() => setSidebarOpen(false)}
                   className={
-                    "flex items-center gap-3 px-3 py-2 rounded-md font-medium text-sm transition-colors " +
+                    "flex items-center gap-3 px-3 py-2 rounded-md font-medium text-sm transition-all duration-200 hover:translate-x-0.5 " +
                     (active
                       ? "bg-sidebar-accent text-sidebar-primary"
                       : "text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground")
@@ -109,14 +110,8 @@ export function AppShell({ title, children }: { title: string; children: ReactNo
           })}
         </nav>
 
-        <div className="border-t border-border">
-          <p className="text-[8px] lg:text-[9px] text-muted-foreground font-mono tracking-wider px-4 pt-3 pb-2 pl-7">
-            Dashboard General de Controles v0.1
-          </p>
-          <div className="border-t border-border" />
-          <div className="p-4">
-            <ThemeToggle />
-          </div>
+        <div className="border-t border-border py-3 flex justify-center">
+          <ThemeToggle />
         </div>
       </aside>
 

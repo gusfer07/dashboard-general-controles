@@ -39,11 +39,11 @@ export function ThemeToggle() {
     return (
       <button
         type="button"
-        className="w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-muted-foreground transition-colors"
+        className="flex items-center justify-center gap-3 px-6 py-4 rounded-lg text-base font-medium text-muted-foreground transition-colors"
         aria-label="Cambiar tema"
       >
-        <span className="size-4 opacity-70" />
-        <span className="flex-1 text-left">Tema</span>
+        <span className="size-6 opacity-70" />
+        <span>Tema</span>
       </button>
     );
   }
@@ -55,11 +55,11 @@ export function ThemeToggle() {
     <button
       type="button"
       onClick={toggle}
-      className="w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-muted-foreground hover:bg-secondary/50 hover:text-foreground transition-colors"
+      className="flex items-center justify-center gap-3 px-6 py-4 rounded-lg text-base font-medium text-muted-foreground hover:bg-secondary/50 hover:text-foreground transition-colors"
       aria-label={label}
     >
-      <Icon className="size-4 opacity-70" />
-      <span className="flex-1 text-left">{label}</span>
+      <Icon className="size-6 opacity-70" />
+      <span>{label}</span>
     </button>
   );
 }

@@ -21,7 +21,7 @@ const toneBar: Record<string, string> = {
 
 export function KpiCards({ kpis, onKpiClick }: { kpis: Kpi[]; onKpiClick?: (index: number) => void }) {
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 animate-stagger">
       {kpis.map((k, i) => (
         <div
           key={k.label}

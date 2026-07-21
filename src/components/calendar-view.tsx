@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useNavigate } from "@tanstack/react-router";
 import { type Row } from "@/hooks/use-dashboard-data";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
@@ -16,6 +17,13 @@ const MONTH_NAMES = [
 const DAY_HEADERS = ["LUN", "MAR", "MIÉ", "JUE", "VIE", "SÁB", "DOM"];
 
 const ESTADO_DOT: Record<string, string> = {
+  Vencido: "bg-danger",
+  Pendiente: "bg-warning",
+  "En proceso": "bg-warning",
+  "Al día": "bg-success",
+};
+
+const ESTADO_BG: Record<string, string> = {
   Vencido: "bg-danger",
   Pendiente: "bg-warning",
   "En proceso": "bg-warning",
@@ -60,6 +68,7 @@ function buildGroups(rows: Row[], month: Date) {
 }
 
 export function CalendarView({ rows }: { rows: Row[] }) {
+  const navigate = useNavigate();
   const firstRowDate = useMemo(() => {
     for (const r of rows) {
       const d = parseVencimiento(r.vencimiento);
@@ -76,11 +85,17 @@ export function CalendarView({ rows }: { rows: Row[] }) {
     setDisplayMonth(new Date(firstRowDate.getFullYear(), firstRowDate.getMonth(), 1));
   }, [firstRowDate.getFullYear(), firstRowDate.getMonth()]);
 
+  const touchStartX = useRef(0);
+
+  const prevMonth = () => setDisplayMonth(new Date(displayMonth.getFullYear(), displayMonth.getMonth() - 1, 1));
+  const nextMonth = () => setDisplayMonth(new Date(displayMonth.getFullYear(), displayMonth.getMonth() + 1, 1));
+
   const groups = useMemo(() => buildGroups(rows, displayMonth), [rows, displayMonth]);
 
   const daysInMonth = new Date(displayMonth.getFullYear(), displayMonth.getMonth() + 1, 0).getDate();
   const firstDow = new Date(displayMonth.getFullYear(), displayMonth.getMonth(), 1).getDay();
   const startOffset = firstDow === 0 ? 6 : firstDow - 1;
+  const numRows = Math.ceil((startOffset + daysInMonth) / 7);
 
   const groupMap = useMemo(() => {
     const m = new Map<number, (typeof groups)[number]>();
@@ -94,28 +109,31 @@ export function CalendarView({ rows }: { rows: Row[] }) {
     today.getMonth() === displayMonth.getMonth();
 
   return (
-    <div className="bg-surface border border-border rounded-lg shadow-sm">
+    <div
+      className="bg-surface border border-border rounded-lg shadow-sm flex flex-col flex-1 min-h-0"
+      onTouchStart={(e) => { touchStartX.current = e.touches[0].clientX; }}
+      onTouchEnd={(e) => {
+        const delta = e.changedTouches[0].clientX - touchStartX.current;
+        if (delta < -50) nextMonth();
+        if (delta > 50) prevMonth();
+      }}
+    >
       {/* Navigation */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-border">
-        <button
-          onClick={() => setDisplayMonth(new Date(displayMonth.getFullYear(), displayMonth.getMonth() - 1, 1))}
-          className="size-7 flex items-center justify-center rounded hover:bg-secondary transition-colors text-muted-foreground"
-        >
+      <div className="flex items-center justify-between px-4 py-3 border-b border-border shrink-0">
+        <button onClick={prevMonth} className="size-7 flex items-center justify-center rounded hover:bg-secondary transition-colors text-muted-foreground">
           <ChevronLeft className="size-4" />
         </button>
         <span className="text-sm font-bold tracking-tight">
           {MONTH_NAMES[displayMonth.getMonth()]} {displayMonth.getFullYear()}
         </span>
-        <button
-          onClick={() => setDisplayMonth(new Date(displayMonth.getFullYear(), displayMonth.getMonth() + 1, 1))}
-          className="size-7 flex items-center justify-center rounded hover:bg-secondary transition-colors text-muted-foreground"
-        >
+        <button onClick={nextMonth} className="size-7 flex items-center justify-center rounded hover:bg-secondary transition-colors text-muted-foreground">
           <ChevronRight className="size-4" />
         </button>
       </div>
 
+      <div key={`${displayMonth.getFullYear()}-${displayMonth.getMonth()}`} className="flex flex-col flex-1 min-h-0 animate-fade-in">
       {/* Day headers */}
-      <div className="grid grid-cols-7 border-b border-border">
+      <div className="grid grid-cols-7 border-b border-border shrink-0">
         {DAY_HEADERS.map((d) => (
           <div key={d} className="px-1 py-2 text-[10px] font-bold text-muted-foreground uppercase tracking-widest text-center">
             {d}
@@ -124,32 +142,30 @@ export function CalendarView({ rows }: { rows: Row[] }) {
       </div>
 
       {/* Day grid */}
-      <div className="grid grid-cols-7">
+      <div className={`grid grid-cols-7 grid-rows-[repeat(${numRows},minmax(48px,1fr))] flex-1 min-h-0 pt-5 pb-5 px-2.5 gap-[5px]`}>
         {Array.from({ length: startOffset }).map((_, i) => (
-          <div key={`e-${i}`} className="h-[42px]" />
+          <div key={`e-${i}`} />
         ))}
 
         {Array.from({ length: daysInMonth }, (_, i) => i + 1).map((day) => {
           const group = groupMap.get(day);
           const isToday = isTodayMonth && day === today.getDate();
+          const primaryEstado = group?.estados?.[0];
 
           const cell = (
             <button
-              className={`relative flex flex-col items-center justify-center w-full h-[42px] text-xs transition-colors
-                ${group ? "cursor-pointer hover:bg-secondary/50" : "cursor-default"}
-                ${isToday ? (group ? "ring-1 ring-primary/40" : "ring-1 ring-border") : ""}
-                ${group ? "text-foreground" : "text-muted-foreground/40"}
+              className={`flex items-center justify-center w-full h-full transition-colors
+                ${group ? "cursor-pointer" : "cursor-default"}
               `}
             >
-              <span className={`${isToday ? "font-bold" : "font-medium"} text-xs leading-none`}>{day}</span>
-              <div className="flex items-center gap-[2px] mt-[2px] h-[4px]">
-                {group?.estados?.slice(0, 3).map((e) => (
-                  <span key={e} className={`size-1 rounded-full ${ESTADO_DOT[e] || "bg-muted-foreground/40"}`} />
-                ))}
-                {(!group || group.estados.length === 0) && (
-                  <span className="size-1 rounded-full opacity-0" aria-hidden="true" />
-                )}
-              </div>
+              <span
+                className={`inline-flex items-center justify-center size-6 rounded-full font-medium text-sm leading-none
+                  ${primaryEstado ? `${ESTADO_BG[primaryEstado] || ""} text-white` : "text-muted-foreground/40"}
+                  ${isToday && !primaryEstado ? "ring-1 ring-border" : ""}
+                `}
+              >
+                {day}
+              </span>
             </button>
           );
 
@@ -166,7 +182,11 @@ export function CalendarView({ rows }: { rows: Row[] }) {
                   {group.rows.map((r, idx) => {
                     const dc = ESTADO_DOT[r.estado] || "bg-muted-foreground/40";
                     return (
-                      <div key={idx} className="flex items-start gap-2 p-1.5 rounded hover:bg-secondary/50 transition-colors">
+                      <button
+                        key={idx}
+                        onClick={() => navigate({ to: "/cliente/$rif", params: { rif: r.cliente.rif } })}
+                        className="flex items-start gap-2 p-1.5 rounded hover:bg-secondary/50 transition-colors w-full text-left"
+                      >
                         <span className={`mt-0.5 size-1.5 rounded-full shrink-0 ${dc}`} />
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-1.5 flex-wrap">
@@ -177,7 +197,7 @@ export function CalendarView({ rows }: { rows: Row[] }) {
                           </div>
                           <p className="text-[10px] text-muted-foreground font-mono mt-0.5">{r.cliente.rif}</p>
                         </div>
-                      </div>
+                      </button>
                     );
                   })}
                 </div>
@@ -186,14 +206,7 @@ export function CalendarView({ rows }: { rows: Row[] }) {
           );
         })}
       </div>
-
-      {groups.length === 0 && (
-        <p className="text-xs text-muted-foreground text-center py-6">
-          {rows.length === 0
-            ? "No hay alertas en el período seleccionado"
-            : `No hay alertas para ${MONTH_NAMES[displayMonth.getMonth()].toLowerCase()} ${displayMonth.getFullYear()}`}
-        </p>
-      )}
+    </div>
     </div>
   );
 }

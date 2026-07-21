@@ -40,7 +40,7 @@ function Index() {
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const [activePeriod, setActivePeriod] = useState<string | null>(null);
   const [activeQuincena, setActiveQuincena] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<"table" | "calendar">("table");
+  const [viewMode, setViewMode] = useState<"table" | "calendar">("calendar");
 
   const baseAlertas = allRows.filter((r) => r.estado === "Vencido" || r.estado === "Pendiente");
 
@@ -81,6 +81,7 @@ function Index() {
 
   return (
     <AppShell title="Dashboard General">
+      <div className="flex flex-col min-h-0 gap-6 lg:gap-8">
       <KpiCards
         kpis={kpis}
         onKpiClick={(index) => navigate({ to: kpiRoutes[index] })}
@@ -193,6 +194,7 @@ function Index() {
       </div>
 
       <SectionCard
+        className="flex-1 flex flex-col min-h-0"
         title={
           <button
             onClick={() => setViewMode((v) => (v === "table" ? "calendar" : "table"))}
@@ -252,6 +254,7 @@ function Index() {
           <CalendarView rows={baseAlertas} />
         )}
       </SectionCard>
+    </div>
     </AppShell>
   );
 }

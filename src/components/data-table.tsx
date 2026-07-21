@@ -242,13 +242,15 @@ export function SectionCard({
   title,
   actions,
   children,
+  className,
 }: {
   title: React.ReactNode;
   actions?: React.ReactNode;
   children: React.ReactNode;
+  className?: string;
 }) {
   return (
-    <section className="bg-surface border border-border rounded-lg shadow-sm">
+    <section className={"bg-surface border border-border rounded-lg shadow-sm animate-fade-in " + (className ?? "")}>
       <div className="border-b border-border bg-secondary/40 px-4 lg:px-6 py-3 lg:py-4 flex items-center justify-between gap-2">
         <div className="flex items-center gap-1.5 lg:gap-2 shrink-0 text-primary-dark">{title}</div>
         <div className="flex gap-1.5 lg:gap-2 shrink-0">{actions}</div>
