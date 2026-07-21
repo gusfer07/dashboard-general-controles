@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { responsables, type Row } from "@/lib/mock-data";
 
 const MONTHS_ES: Record<string, number> = {
@@ -65,7 +65,9 @@ export function DataTable({
   rows,
   totalClientes = 103,
   hideClient,
-}: { rows: Row[]; totalClientes?: number; hideClient?: boolean }) {
+  hideEstado,
+  hideVencimiento,
+}: { rows: Row[]; totalClientes?: number; hideClient?: boolean; hideEstado?: boolean; hideVencimiento?: boolean }) {
   const sorted = useMemo(() => sortRows(rows), [rows]);
   const [page, setPage] = useState(1);
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -95,8 +97,8 @@ export function DataTable({
           <tr className="border-b border-border text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
             <th className={`px-3 lg:px-6 py-3 font-semibold ${hideClient ? "hidden" : ""}`}>Cliente</th>
             <th className="px-3 lg:px-6 py-3 font-semibold">Concepto</th>
-            <th className="px-3 lg:px-6 py-3 font-semibold">Estado</th>
-            <th className="px-3 lg:px-6 py-3 font-semibold">Vencimiento</th>
+            <th className={`px-3 lg:px-6 py-3 font-semibold ${hideEstado ? "hidden" : ""}`}>Estado</th>
+            <th className={`px-3 lg:px-6 py-3 font-semibold ${hideVencimiento ? "hidden" : ""}`}>Vencimiento</th>
             <th className="px-3 lg:px-6 py-3 font-semibold">Responsable</th>
           </tr>
         </thead>
@@ -132,7 +134,7 @@ export function DataTable({
                       {r.concepto}
                     </span>
                   </td>
-                  <td className="px-3 lg:px-6 py-3 lg:py-4">
+                  <td className={`px-3 lg:px-6 py-3 lg:py-4 ${hideEstado ? "hidden" : ""}`}>
                     <div className="flex items-center gap-1.5 lg:gap-2">
                       <span className={"size-1.5 rounded-full " + s.dot} />
                       <span
@@ -144,7 +146,7 @@ export function DataTable({
                       </span>
                     </div>
                   </td>
-                  <td className="px-3 lg:px-6 py-3 lg:py-4">
+                  <td className={`px-3 lg:px-6 py-3 lg:py-4 ${hideVencimiento ? "hidden" : ""}`}>
                     <p
                       className={
                         "text-[10px] lg:text-xs font-mono " +
@@ -166,7 +168,7 @@ export function DataTable({
                 <tr
                   className={`bg-secondary/30 transition-all duration-300 ${isExpanded ? "opacity-100" : "opacity-0 pointer-events-none"}`}
                 >
-                  <td colSpan={5} className="px-3 lg:px-6 py-0 overflow-hidden">
+                  <td colSpan={hideEstado || hideVencimiento ? 4 : 5} className="px-3 lg:px-6 py-0 overflow-hidden">
                     <div
                       className={`transition-all duration-300 ${isExpanded ? "max-h-[100px] py-2 lg:py-3" : "max-h-0 py-0"}`}
                     >
@@ -269,32 +271,54 @@ export function TableToolbar({
   activeChip: string | null;
   onChipClick: (chip: string | null) => void;
 }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
   return (
-    <div className="border-b border-border bg-surface px-4 lg:px-6 py-2 lg:py-3 flex items-center justify-between flex-wrap gap-2">
-      <div className="flex flex-wrap gap-1.5 lg:gap-2">
+    <div className="border-b border-border bg-surface px-4 lg:px-6 py-2 lg:py-3 flex items-center justify-between flex-wrap gap-2" ref={ref}>
+      <div className="relative">
         <button
-          onClick={() => onChipClick(null)}
-          className={`text-[10px] font-bold uppercase tracking-wider px-2 lg:px-3 py-1 rounded border transition-all ${
-            activeChip === null
-              ? "border-primary bg-primary text-primary-foreground shadow-sm"
-              : "border-border bg-surface text-muted-foreground hover:text-foreground"
-          }`}
+          onClick={() => setOpen(!open)}
+          className="px-2 lg:px-3 py-1.5 bg-surface border border-border rounded-md text-[10px] lg:text-xs font-bold uppercase tracking-wider flex items-center gap-1 hover:bg-secondary transition-colors"
         >
-          Todos
+          {activeChip ?? "Concepto"}
+          <svg className="size-3 opacity-60" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
         </button>
-        {chips.map((c) => (
-          <button
-            key={c}
-            onClick={() => onChipClick(c)}
-            className={`text-[10px] font-bold uppercase tracking-wider px-2 lg:px-3 py-1 rounded border transition-all ${
-              activeChip === c
-                ? "border-primary bg-primary text-primary-foreground shadow-sm"
-                : "border-border bg-surface text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            {c}
-          </button>
-        ))}
+        {open && (
+          <div className="absolute left-0 top-full mt-1 z-50 min-w-[160px] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-lg">
+            <button
+              onClick={() => { onChipClick(null); setOpen(false); }}
+              className={`w-full text-left px-2 py-1.5 text-xs rounded hover:bg-secondary transition-colors ${
+                activeChip === null ? "bg-primary/10 font-bold" : ""
+              }`}
+            >
+              Todos los conceptos
+            </button>
+            {chips.map((c) => (
+              <button
+                key={c}
+                onClick={() => { onChipClick(c); setOpen(false); }}
+                className={`w-full text-left px-2 py-1.5 text-xs rounded hover:bg-secondary transition-colors ${
+                  activeChip === c ? "bg-primary/10 font-bold" : ""
+                }`}
+              >
+                {c}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

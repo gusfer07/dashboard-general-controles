@@ -46,12 +46,15 @@ export function AppShell({ title, children }: { title: string; children: ReactNo
       >
 
         <div className="flex flex-col items-center pt-6 pb-6 px-4 border-b border-border">
-          <img
-            src="/LOGO CARRASCO SIN LETRAS.png"
-            alt="Carrasco"
-            className="h-20 w-auto opacity-80"
-          />
-          <span className="mt-2 text-xs text-muted-foreground font-mono">RIF J-50478211-4</span>
+          <Link to="/">
+            <img
+              src="/LOGO CARRASCO SIN LETRAS.png"
+              alt="Carrasco"
+              className="h-20 w-auto opacity-80 hover:opacity-100 transition-opacity"
+            />
+          </Link>
+          <span className="mt-3 text-base font-bold tracking-tight text-primary-dark">CARRASCO & ASOCIADOS</span>
+          <span className="mt-0.5 text-xs text-muted-foreground font-mono">J-50478211-4</span>
         </div>
 
         <nav className="flex-1 p-4 space-y-1">
@@ -117,33 +120,35 @@ export function AppShell({ title, children }: { title: string; children: ReactNo
 
       <main className="flex-1 min-w-0">
         <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border px-4 lg:px-8 py-3 lg:py-4 flex items-center justify-between gap-2">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setSidebarOpen(true)}
-              className="lg:hidden size-8 flex items-center justify-center rounded hover:bg-secondary"
-            >
-              <Menu className="size-4" />
-            </button>
-            <h1 className="text-base lg:text-lg font-bold tracking-tight truncate text-primary-dark">{title}</h1>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="hidden lg:block">
-              <ClientSearch />
+          {mobileSearchOpen ? (
+            <div className="flex-1 flex lg:hidden">
+              <ClientSearch onClose={() => setMobileSearchOpen(false)} />
             </div>
-            <button
-              onClick={() => setMobileSearchOpen(!mobileSearchOpen)}
-              className="lg:hidden size-8 flex items-center justify-center rounded hover:bg-secondary"
-            >
-              <SearchIcon className="size-4" />
-            </button>
-          </div>
+          ) : (
+            <>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setSidebarOpen(true)}
+                  className="lg:hidden size-8 flex items-center justify-center rounded hover:bg-secondary"
+                >
+                  <Menu className="size-4" />
+                </button>
+                <h1 className="text-base lg:text-lg font-bold tracking-tight truncate text-primary-dark">{title}</h1>
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="hidden lg:block">
+                  <ClientSearch />
+                </div>
+                <button
+                  onClick={() => setMobileSearchOpen(true)}
+                  className="lg:hidden size-8 flex items-center justify-center rounded hover:bg-secondary"
+                >
+                  <SearchIcon className="size-4" />
+                </button>
+              </div>
+            </>
+          )}
         </header>
-
-        {mobileSearchOpen && (
-          <div className="lg:hidden px-4 py-2 border-b border-border bg-surface">
-            <ClientSearch />
-          </div>
-        )}
 
         <div className="p-4 lg:p-8 space-y-6 lg:space-y-8 animate-fade-in">{children}</div>
       </main>

@@ -20,6 +20,7 @@ import { Route as ClientespendientesRouteImport } from './routes/clientespendien
 import { Route as ClientesaldiaRouteImport } from './routes/clientesaldia'
 import { Route as ClientesRouteImport } from './routes/clientes'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ResponsableIdRouteImport } from './routes/responsable.$id'
 import { Route as ClienteRifRouteImport } from './routes/cliente.$rif'
 
 const VencidasRoute = VencidasRouteImport.update({
@@ -77,6 +78,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ResponsableIdRoute = ResponsableIdRouteImport.update({
+  id: '/responsable/$id',
+  path: '/responsable/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ClienteRifRoute = ClienteRifRouteImport.update({
   id: '/cliente/$rif',
   path: '/cliente/$rif',
@@ -96,6 +102,7 @@ export interface FileRoutesByFullPath {
   '/tributarias': typeof TributariasRoute
   '/vencidas': typeof VencidasRoute
   '/cliente/$rif': typeof ClienteRifRoute
+  '/responsable/$id': typeof ResponsableIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -110,6 +117,7 @@ export interface FileRoutesByTo {
   '/tributarias': typeof TributariasRoute
   '/vencidas': typeof VencidasRoute
   '/cliente/$rif': typeof ClienteRifRoute
+  '/responsable/$id': typeof ResponsableIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -125,6 +133,7 @@ export interface FileRoutesById {
   '/tributarias': typeof TributariasRoute
   '/vencidas': typeof VencidasRoute
   '/cliente/$rif': typeof ClienteRifRoute
+  '/responsable/$id': typeof ResponsableIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -141,6 +150,7 @@ export interface FileRouteTypes {
     | '/tributarias'
     | '/vencidas'
     | '/cliente/$rif'
+    | '/responsable/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -155,6 +165,7 @@ export interface FileRouteTypes {
     | '/tributarias'
     | '/vencidas'
     | '/cliente/$rif'
+    | '/responsable/$id'
   id:
     | '__root__'
     | '/'
@@ -169,6 +180,7 @@ export interface FileRouteTypes {
     | '/tributarias'
     | '/vencidas'
     | '/cliente/$rif'
+    | '/responsable/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -184,6 +196,7 @@ export interface RootRouteChildren {
   TributariasRoute: typeof TributariasRoute
   VencidasRoute: typeof VencidasRoute
   ClienteRifRoute: typeof ClienteRifRoute
+  ResponsableIdRoute: typeof ResponsableIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -265,6 +278,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/responsable/$id': {
+      id: '/responsable/$id'
+      path: '/responsable/$id'
+      fullPath: '/responsable/$id'
+      preLoaderRoute: typeof ResponsableIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/cliente/$rif': {
       id: '/cliente/$rif'
       path: '/cliente/$rif'
@@ -288,6 +308,7 @@ const rootRouteChildren: RootRouteChildren = {
   TributariasRoute: TributariasRoute,
   VencidasRoute: VencidasRoute,
   ClienteRifRoute: ClienteRifRoute,
+  ResponsableIdRoute: ResponsableIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

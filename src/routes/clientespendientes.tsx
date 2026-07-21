@@ -81,6 +81,16 @@ function ClientesPendientesPage() {
 
   const activeRows = filterByQuincena(cualidadFiltered, activeQuincena);
 
+  function findResponsable(
+    rows: { concepto: string; cliente: { cualidad?: string }; responsable: { name: string } }[],
+  ): string {
+    const cualidad = rows[0]?.cliente?.cualidad;
+    const conceptKey = cualidad === "SPE" ? "IVA SPE" : cualidad === "SPO" ? "IVA SPO" : null;
+    if (!conceptKey) return "N/A";
+    const match = rows.find((r) => r.concepto === conceptKey);
+    return match?.responsable?.name ?? "N/A";
+  }
+
   const allStatuses = computeClientStatuses(activeRows);
   const clientes = allStatuses.filter((c) => c.estado === "Pendiente");
 
@@ -130,12 +140,14 @@ function ClientesPendientesPage() {
               <tr className="border-b border-border text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
                 <th className="px-3 lg:px-6 py-3 font-semibold">Cliente</th>
                 <th className="px-3 lg:px-6 py-3 font-semibold whitespace-nowrap">Estado</th>
+                <th className="px-3 lg:px-6 py-3 font-semibold whitespace-nowrap">Responsable</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
               {clientes.map((c) => {
                 const s = estadoStyles[c.estado];
                 const isExpanded = expandedRif === c.rif;
+                const respName = findResponsable(c.rows);
                 return (
                   <Fragment key={c.rif}>
                     <tr
@@ -156,11 +168,14 @@ function ClientesPendientesPage() {
                           </span>
                         </div>
                       </td>
+                      <td className="px-3 lg:px-6 py-3 lg:py-4">
+                        <span className="text-[10px] lg:text-xs">{respName}</span>
+                      </td>
                     </tr>
                     <tr
                       className={`bg-secondary/30 transition-all duration-300 ${isExpanded ? "opacity-100" : "opacity-0 pointer-events-none"}`}
                     >
-                      <td colSpan={2} className="px-3 lg:px-6 py-0 overflow-hidden">
+                      <td colSpan={3} className="px-3 lg:px-6 py-0 overflow-hidden">
                         <div
                           className={`transition-all duration-300 ${isExpanded ? "max-h-[500px] py-2 lg:py-3" : "max-h-0 py-0"}`}
                         >

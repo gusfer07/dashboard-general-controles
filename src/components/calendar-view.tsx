@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { type Row } from "@/hooks/use-dashboard-data";
@@ -87,15 +87,23 @@ export function CalendarView({ rows }: { rows: Row[] }) {
 
   const touchStartX = useRef(0);
 
-  const prevMonth = () => setDisplayMonth(new Date(displayMonth.getFullYear(), displayMonth.getMonth() - 1, 1));
-  const nextMonth = () => setDisplayMonth(new Date(displayMonth.getFullYear(), displayMonth.getMonth() + 1, 1));
+  const [slideDir, setSlideDir] = useState(0);
+
+  const prevMonth = useCallback(() => {
+    setSlideDir(1);
+    setDisplayMonth(new Date(displayMonth.getFullYear(), displayMonth.getMonth() - 1, 1));
+  }, [displayMonth]);
+  const nextMonth = useCallback(() => {
+    setSlideDir(-1);
+    setDisplayMonth(new Date(displayMonth.getFullYear(), displayMonth.getMonth() + 1, 1));
+  }, [displayMonth]);
 
   const groups = useMemo(() => buildGroups(rows, displayMonth), [rows, displayMonth]);
 
   const daysInMonth = new Date(displayMonth.getFullYear(), displayMonth.getMonth() + 1, 0).getDate();
   const firstDow = new Date(displayMonth.getFullYear(), displayMonth.getMonth(), 1).getDay();
   const startOffset = firstDow === 0 ? 6 : firstDow - 1;
-  const numRows = Math.ceil((startOffset + daysInMonth) / 7);
+  const numRows = 6;
 
   const groupMap = useMemo(() => {
     const m = new Map<number, (typeof groups)[number]>();
@@ -110,7 +118,7 @@ export function CalendarView({ rows }: { rows: Row[] }) {
 
   return (
     <div
-      className="bg-surface border border-border rounded-lg shadow-sm flex flex-col flex-1 min-h-0"
+      className="flex flex-col flex-1 min-h-0"
       onTouchStart={(e) => { touchStartX.current = e.touches[0].clientX; }}
       onTouchEnd={(e) => {
         const delta = e.changedTouches[0].clientX - touchStartX.current;
@@ -131,7 +139,7 @@ export function CalendarView({ rows }: { rows: Row[] }) {
         </button>
       </div>
 
-      <div key={`${displayMonth.getFullYear()}-${displayMonth.getMonth()}`} className="flex flex-col flex-1 min-h-0 animate-fade-in">
+      <div key={`${displayMonth.getFullYear()}-${displayMonth.getMonth()}`} className={`flex flex-col flex-1 min-h-0 ${slideDir > 0 ? "animate-slide-in-left" : slideDir < 0 ? "animate-slide-in-right" : "animate-fade-in"}`}>
       {/* Day headers */}
       <div className="grid grid-cols-7 border-b border-border shrink-0">
         {DAY_HEADERS.map((d) => (
@@ -205,6 +213,9 @@ export function CalendarView({ rows }: { rows: Row[] }) {
             </Popover>
           );
         })}
+        {Array.from({ length: 42 - startOffset - daysInMonth }, (_, i) => (
+          <div key={`t-${i}`} />
+        ))}
       </div>
     </div>
     </div>

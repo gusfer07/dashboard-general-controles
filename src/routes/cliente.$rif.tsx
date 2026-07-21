@@ -74,11 +74,24 @@ function ClientePageContent() {
   const filteredRows =
     cualidad === "SPE" ? filterByQuincena(periodFiltered, activeQuincena) : periodFiltered;
 
+  const periodResponsable = (() => {
+    const conceptKey = cualidad === "SPE" ? "IVA SPE" : cualidad === "SPO" ? "IVA SPO" : null;
+    if (!conceptKey) return null;
+    const match = filteredRows.find((r) => r.concepto === conceptKey);
+    return match?.responsable ?? null;
+  })();
+
   return (
     <div className="space-y-4 lg:space-y-6">
       <div className="space-y-1">
         <h2 className="text-lg lg:text-2xl font-bold break-words">{clientName}</h2>
         <p className="text-[10px] lg:text-sm font-mono text-muted-foreground">{rif}</p>
+        {periodResponsable && (
+          <p className="text-[10px] lg:text-xs text-muted-foreground">
+            Responsable del período:{" "}
+            <span className="font-semibold text-foreground">{periodResponsable.name}</span>
+          </p>
+        )}
       </div>
 
       <SectionCard
