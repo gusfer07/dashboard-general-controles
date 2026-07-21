@@ -65,7 +65,7 @@ export function AppShell({ title, children }: { title: string; children: ReactNo
                 <div key={item.to} className="opacity-40 cursor-not-allowed select-none">
                   {showGroup && (
                     <div className="pt-4 pb-2 px-3">
-                      <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                      <span className="text-[10px] font-bold text-primary-dark uppercase tracking-widest">
                         {item.group}
                       </span>
                     </div>
@@ -82,7 +82,7 @@ export function AppShell({ title, children }: { title: string; children: ReactNo
               <div key={item.to}>
                 {showGroup && (
                   <div className="pt-4 pb-2 px-3">
-                    <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                    <span className="text-[10px] font-bold text-primary-dark uppercase tracking-widest">
                       {item.group}
                     </span>
                   </div>
@@ -129,7 +129,7 @@ export function AppShell({ title, children }: { title: string; children: ReactNo
             >
               <Menu className="size-4" />
             </button>
-            <h1 className="text-base lg:text-lg font-bold tracking-tight truncate">{title}</h1>
+            <h1 className="text-base lg:text-lg font-bold tracking-tight truncate text-primary-dark">{title}</h1>
           </div>
           <div className="flex items-center gap-4">
             <div className="hidden lg:block">

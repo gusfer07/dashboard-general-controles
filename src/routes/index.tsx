@@ -198,8 +198,8 @@ function Index() {
             onClick={() => setViewMode((v) => (v === "table" ? "calendar" : "table"))}
             className={`px-2 lg:px-3 py-1 rounded text-[10px] font-bold uppercase tracking-wider border transition-all ${
               viewMode === "calendar"
-                ? "bg-primary text-primary-foreground border-primary"
-                : "bg-surface border-border hover:bg-secondary"
+                  ? "bg-primary text-primary-foreground border-primary"
+                  : "bg-surface text-foreground border-border hover:bg-secondary"
             }`}
           >
             {viewMode === "table" ? "Calendario" : "Tabla"}

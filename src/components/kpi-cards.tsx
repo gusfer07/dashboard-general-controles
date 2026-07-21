@@ -32,7 +32,7 @@ export function KpiCards({ kpis, onKpiClick }: { kpis: Kpi[]; onKpiClick?: (inde
             {k.label}
           </p>
           <div className="mt-2">
-            <span className="text-3xl font-bold tracking-tighter">{k.value}</span>
+            <span className="text-3xl font-bold tracking-tighter text-primary-dark">{k.value}</span>
             {k.hint && (
               <p className={"text-[11px] font-bold mt-0.5 " + toneText[k.hintTone ?? "muted"]}>
                 {k.hint}
