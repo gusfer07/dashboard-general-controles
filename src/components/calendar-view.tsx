@@ -94,7 +94,7 @@ export function CalendarView({ rows }: { rows: Row[] }) {
     today.getMonth() === displayMonth.getMonth();
 
   return (
-    <div className="bg-surface border border-border rounded-sm">
+    <div className="bg-surface border border-border rounded-lg shadow-sm">
       {/* Navigation */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-border">
         <button

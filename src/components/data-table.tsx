@@ -19,9 +19,9 @@ const MONTHS_ES: Record<string, number> = {
 const estadoStyles: Record<string, { dot: string; text: string }> = {
   "Al día": { dot: "bg-success", text: "text-success" },
   Pendiente: { dot: "bg-warning", text: "text-warning" },
-  "En proceso": { dot: "bg-warning", text: "text-warning" },
+  "En proceso": { dot: "bg-primary", text: "text-primary" },
   Vencido: { dot: "bg-danger", text: "text-danger" },
-  "N/A": { dot: "bg-muted-foreground/40", text: "text-muted-foreground" },
+  "N/A": { dot: "bg-[#94a3b8]", text: "text-[#94a3b8]" },
 };
 
 const ESTADO_ORDER: Record<string, number> = {
@@ -248,7 +248,7 @@ export function SectionCard({
   children: React.ReactNode;
 }) {
   return (
-    <section className="bg-surface border border-border rounded-sm">
+    <section className="bg-surface border border-border rounded-lg shadow-sm">
       <div className="border-b border-border bg-secondary/40 px-4 lg:px-6 py-3 lg:py-4 flex items-center justify-between gap-2">
         <div className="flex items-center gap-1.5 lg:gap-2 shrink-0 text-primary-dark">{title}</div>
         <div className="flex gap-1.5 lg:gap-2 shrink-0">{actions}</div>

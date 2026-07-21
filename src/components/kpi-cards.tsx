@@ -26,7 +26,7 @@ export function KpiCards({ kpis, onKpiClick }: { kpis: Kpi[]; onKpiClick?: (inde
         <div
           key={k.label}
           onClick={() => onKpiClick?.(i)}
-          className="bg-surface p-5 border border-border rounded-sm shadow-sm cursor-pointer hover:border-primary/40 hover:shadow-sm transition-all active:scale-[0.98]"
+          className="bg-surface p-5 border border-border rounded-lg shadow-sm cursor-pointer hover:border-[#bccdd2] hover:shadow-md hover:-translate-y-0.5 transition-all active:scale-[0.98]"
         >
           <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
             {k.label}
