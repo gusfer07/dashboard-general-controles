@@ -35,6 +35,47 @@ export type Database = {
         };
         Relationships: [];
       };
+      clients_billing: {
+        Row: {
+          acumulado: string | null;
+          client_id: string | null;
+          created_at: string | null;
+          id: string;
+          mensualidad: string | null;
+          moneda: string | null;
+          monto_mensualidad: string | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          acumulado?: string | null;
+          client_id?: string | null;
+          created_at?: string | null;
+          id?: string;
+          mensualidad?: string | null;
+          moneda?: string | null;
+          monto_mensualidad?: string | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          acumulado?: string | null;
+          client_id?: string | null;
+          created_at?: string | null;
+          id?: string;
+          mensualidad?: string | null;
+          moneda?: string | null;
+          monto_mensualidad?: string | null;
+          updated_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "clients_billing_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: true;
+            referencedRelation: "clients";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       obligations: {
         Row: {
           client_id: string;

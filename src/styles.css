@@ -187,13 +187,13 @@
 }
 
 @keyframes slide-in-left {
-  from { transform: translateX(-30%); opacity: 0; }
-  to   { transform: translateX(0); opacity: 1; }
+  from { transform: translateX(-30%); }
+  to   { transform: translateX(0); }
 }
 
 @keyframes slide-in-right {
-  from { transform: translateX(30%); opacity: 0; }
-  to   { transform: translateX(0); opacity: 1; }
+  from { transform: translateX(30%); }
+  to   { transform: translateX(0); }
 }
 
 @utility animate-slide-in-left {
@@ -216,4 +216,14 @@
   & > *:nth-child(6) { animation-delay: 300ms; }
   & > *:nth-child(7) { animation-delay: 360ms; }
   & > *:nth-child(8) { animation-delay: 420ms; }
+}
+
+@keyframes highlight-flash {
+  0%   { background-color: color-mix(in srgb, var(--primary) 25%, transparent); }
+  60%  { background-color: color-mix(in srgb, var(--primary) 25%, transparent); }
+  100% { background-color: transparent; }
+}
+
+@utility animate-highlight-flash {
+  animation: highlight-flash 2.5s ease-out forwards;
 }

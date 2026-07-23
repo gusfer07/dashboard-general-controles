@@ -79,7 +79,7 @@ export function PeriodFilter({
         </svg>
       </button>
       {open && (
-        <div className="absolute right-0 lg:left-0 top-full mt-1 z-50 min-w-[140px] lg:min-w-[160px] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-lg">
+        <div className="absolute right-0 top-full mt-1 z-50 min-w-[140px] lg:min-w-[160px] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-lg">
           {!hideAllOption && (
             <button
               onClick={() => {

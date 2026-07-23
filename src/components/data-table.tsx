@@ -67,7 +67,8 @@ export function DataTable({
   hideClient,
   hideEstado,
   hideVencimiento,
-}: { rows: Row[]; totalClientes?: number; hideClient?: boolean; hideEstado?: boolean; hideVencimiento?: boolean }) {
+  highlightId,
+}: { rows: Row[]; totalClientes?: number; hideClient?: boolean; hideEstado?: boolean; hideVencimiento?: boolean; highlightId?: string }) {
   const sorted = useMemo(() => sortRows(rows), [rows]);
   const [page, setPage] = useState(1);
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -121,7 +122,7 @@ export function DataTable({
               <Fragment key={i}>
                 <tr
                   onClick={() => setExpandedId(isExpanded ? null : (r.id ?? null))}
-                  className="group hover:bg-secondary/50 transition-colors cursor-pointer"
+                  className={`group hover:bg-secondary/50 transition-colors cursor-pointer ${r.id && r.id === highlightId ? "animate-highlight-flash" : ""}`}
                 >
                   <td className={`px-3 lg:px-6 py-3 lg:py-4 ${hideClient ? "hidden" : ""}`}>
                     <p className="font-bold text-xs lg:text-sm">{r.cliente.name}</p>
@@ -158,10 +159,9 @@ export function DataTable({
                   </td>
                   <td className="px-3 lg:px-6 py-3 lg:py-4">
                     <div className="flex items-center gap-1.5 lg:gap-2">
-                      <div className="size-5 lg:size-6 rounded bg-secondary flex items-center justify-center text-[9px] lg:text-[10px] font-bold">
+                      <div className="size-[25px] lg:size-[34px] rounded bg-secondary flex items-center justify-center text-sm lg:text-[20px] font-bold">
                         {resp.initials}
                       </div>
-                      <span className="text-[10px] lg:text-xs">{resp.name}</span>
                     </div>
                   </td>
                 </tr>

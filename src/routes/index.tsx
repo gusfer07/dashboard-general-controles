@@ -116,7 +116,7 @@ function Index() {
           </svg>
         </button>
         {open && (
-          <div className="absolute left-0 top-full mt-1 z-50 min-w-[160px] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-lg">
+          <div className="absolute right-0 top-full mt-1 z-50 min-w-[160px] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-lg">
             <button onClick={() => { setActiveFilter(null); setOpen(false); setActiveQuincena(null); }} className={`w-full text-left px-2 py-1.5 text-xs rounded hover:bg-secondary transition-colors ${activeFilter === null ? "bg-primary/10 font-bold" : ""}`}>
               Todos los conceptos
             </button>
@@ -249,7 +249,7 @@ function Index() {
         className="flex-1 flex flex-col min-h-0"
         title={
           <button
-            onClick={() => setViewMode((v) => (v === "table" ? "calendar" : "table"))}
+            onClick={() => { setShowFilters(false); setViewMode((v) => (v === "table" ? "calendar" : "table")); }}
             className={`px-2 lg:px-3 py-1 rounded text-[10px] font-bold uppercase tracking-wider border transition-all ${
               viewMode === "calendar"
                   ? "bg-primary text-primary-foreground border-primary"
@@ -260,18 +260,21 @@ function Index() {
           </button>
         }
         actions={
-          viewMode === "table" ? (
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className={`px-2 lg:px-3 py-1 rounded text-[10px] font-bold uppercase tracking-wider border transition-all ${
-                showFilters
-                  ? "bg-primary text-primary-foreground border-primary"
-                  : "bg-surface border-border hover:bg-secondary"
-              }`}
-            >
-              Filtros
-            </button>
-          ) : undefined
+          <div className="flex items-center gap-1.5 lg:gap-2">
+            {viewMode === "calendar" ? <ConceptFilterDropdown /> : null}
+            {viewMode === "table" ? (
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className={`px-2 lg:px-3 py-1 rounded text-[10px] font-bold uppercase tracking-wider border transition-all ${
+                  showFilters
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-surface border-border hover:bg-secondary"
+                }`}
+              >
+                Filtros
+              </button>
+            ) : undefined}
+          </div>
         }
       >
         <div className={`bg-secondary/30 transition-all duration-300 ${showFilters ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
@@ -306,7 +309,7 @@ function Index() {
             <DataTable rows={displayRows} totalClientes={showInformes ? informesFiltered.length : clientsCount} hideEstado={showInformes} hideVencimiento={showInformes} />
           </div>
         ) : (
-          <CalendarView rows={baseAlertas} />
+          <CalendarView rows={conceptFiltered} />
         )}
       </SectionCard>
     </div>

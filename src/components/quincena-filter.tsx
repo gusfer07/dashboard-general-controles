@@ -78,7 +78,7 @@ export function QuincenaFilter({
         </svg>
       </button>
       {open && (
-        <div className="absolute right-0 lg:left-0 top-full mt-1 z-50 min-w-[180px] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-lg">
+        <div className="absolute right-0 top-full mt-1 z-50 min-w-[180px] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-lg">
           <button
             onClick={() => {
               onChange(null);

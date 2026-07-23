@@ -315,17 +315,23 @@ export function useDashboardData() {
         ? { name: client.name, rif: client.rif, cualidad: client.cualidad }
         : { name: "Cliente Desconocido", rif: "" },
       concepto: "Alcaldía",
-      estado: getBooleanStatus(
-        [item.declarado, item.enviado, item.pagado, item.certificado],
-        item.fecha,
-      ),
+      estado: (() => {
+        const ec: (boolean | null | undefined)[] = [item.declarado];
+        if (!item.pagado) ec.push(item.enviado);
+        ec.push(item.pagado, item.certificado);
+        return getBooleanStatus(ec, item.fecha);
+      })(),
       vencimiento: formatDueDate(item.fecha),
       monto: "—",
       responsable: resp ? { initials: resp.initials, name: resp.name } : defaultResp,
-      checksPendientes: booleanPendingChecks(
-        [item.declarado, item.enviado, item.pagado, item.certificado],
-        ["Declarado", "Enviado", "Pagar", "Certificado"],
-      ),
+      checksPendientes: (() => {
+        const c: (boolean | null | undefined)[] = [item.declarado];
+        const l: string[] = ["Declarar"];
+        if (!item.pagado) { c.push(item.enviado); l.push("Enviar"); }
+        c.push(item.pagado, item.certificado);
+        l.push("Pagar", "Certificado");
+        return booleanPendingChecks(c, l);
+      })(),
     });
   });
 

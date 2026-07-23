@@ -139,7 +139,7 @@ export function CalendarView({ rows }: { rows: Row[] }) {
         </button>
       </div>
 
-      <div key={`${displayMonth.getFullYear()}-${displayMonth.getMonth()}`} className={`flex flex-col flex-1 min-h-0 ${slideDir > 0 ? "animate-slide-in-left" : slideDir < 0 ? "animate-slide-in-right" : "animate-fade-in"}`}>
+      <div onAnimationEnd={() => setSlideDir(0)} className={`flex flex-col flex-1 min-h-0 ${slideDir > 0 ? "animate-slide-in-left" : slideDir < 0 ? "animate-slide-in-right" : ""}`}>
       {/* Day headers */}
       <div className="grid grid-cols-7 border-b border-border shrink-0">
         {DAY_HEADERS.map((d) => (
@@ -192,7 +192,7 @@ export function CalendarView({ rows }: { rows: Row[] }) {
                     return (
                       <button
                         key={idx}
-                        onClick={() => navigate({ to: "/cliente/$rif", params: { rif: r.cliente.rif } })}
+                        onClick={() => navigate({ to: "/cliente/$rif", params: { rif: r.cliente.rif }, search: { highlight: r.id } })}
                         className="flex items-start gap-2 p-1.5 rounded hover:bg-secondary/50 transition-colors w-full text-left"
                       >
                         <span className={`mt-0.5 size-1.5 rounded-full shrink-0 ${dc}`} />

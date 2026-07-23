@@ -82,13 +82,13 @@ function ClientesAlDiaPage() {
   const activeRows = filterByQuincena(cualidadFiltered, activeQuincena);
 
   function findResponsable(
-    rows: { concepto: string; cliente: { cualidad?: string }; responsable: { name: string } }[],
-  ): string {
+    rows: { concepto: string; cliente: { cualidad?: string }; responsable: { initials: string; name: string } }[],
+  ): { initials: string; name: string } | null {
     const cualidad = rows[0]?.cliente?.cualidad;
     const conceptKey = cualidad === "SPE" ? "IVA SPE" : cualidad === "SPO" ? "IVA SPO" : null;
-    if (!conceptKey) return "N/A";
+    if (!conceptKey) return null;
     const match = rows.find((r) => r.concepto === conceptKey);
-    return match?.responsable?.name ?? "N/A";
+    return match?.responsable ?? null;
   }
 
   const allStatuses = computeClientStatuses(activeRows);
@@ -147,7 +147,7 @@ function ClientesAlDiaPage() {
               {clientes.map((c) => {
                 const s = estadoStyles[c.estado];
                 const isExpanded = expandedRif === c.rif;
-                const respName = findResponsable(c.rows);
+                const resp = findResponsable(c.rows);
                 return (
                   <Fragment key={c.rif}>
                     <tr
@@ -168,8 +168,12 @@ function ClientesAlDiaPage() {
                           </span>
                         </div>
                       </td>
-                      <td className="px-3 lg:px-6 py-3 lg:py-4">
-                        <span className="text-[10px] lg:text-xs">{respName}</span>
+                      <td className="px-3 lg:px-6 py-3 lg:py-4 align-middle">
+                        <div className="flex items-center justify-center">
+                          <div className="size-[25px] lg:size-[34px] rounded bg-secondary flex items-center justify-center text-sm lg:text-[20px] font-bold">
+                            {resp ? resp.initials : "N/A"}
+                          </div>
+                        </div>
                       </td>
                     </tr>
                     <tr
